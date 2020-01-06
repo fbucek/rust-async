@@ -14,11 +14,11 @@ async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
 
 #[get("/api/stop")]
 async fn api_stop(
-    sender: web::Data<Arc<Mutex<sync::mpsc::Sender<Message>>>>,
+    sender: web::Data<Arc<Mutex<tokio::sync::mpsc::Sender<Message>>>>,
 ) -> Result<HttpResponse, ActixError> {
-    trace!("{:?}", sender);
-    let sender = sender.lock().unwrap();
-    sender.send(Message::RunCheck).unwrap_or_else(|err| {
+    // trace!("{:?}", sender);
+    let mut sender = sender.lock().unwrap();
+    sender.send(Message::RunCheck).await.unwrap_or_else(|err| {
         error!(
             "Not possible to send message -> RunCheck - error: {:?}",
             err
@@ -52,10 +52,10 @@ async fn main() -> std::io::Result<()> {
     let (sender, receiver) = tokio::sync::mpsc::channel(10);
     let sender = Arc::new(Mutex::new(sender)); // <-- Actix loop
     let sender_exit = Arc::clone(&sender); // <-- Ctrl+C handler
-    let receiver = Arc::new(Mutex::new(receiver));
-    let receiver_tokio = Arc::clone(&receiver);
-    let receiver_tokio2 = Arc::clone(&receiver);
-    let receiver_tokio3 = Arc::clone(&receiver);
+    //let receiver = Arc::new(Mutex::new(receiver));
+    // let receiver_tokio = Arc::clone(&receiver);
+    // let receiver_tokio2 = Arc::clone(&receiver);
+    // let receiver_tokio3 = Arc::clone(&receiver);
 
     // Gracefull shutdown -> SIGTERM received -> send message terminate
     ctrlc::set_handler(move || {
@@ -67,27 +67,29 @@ async fn main() -> std::io::Result<()> {
     })
     .expect("Error setting Ctrl+C handler");
 
-    let mut service_controller = ServiceController::new(Arc::clone(&receiver));
-    service_controller
-        .run()
-        .await
-        .expect("Not possible to run thread loop");
-
     tokio::spawn(async move {
-        let mut service_controller = ServiceController::new(receiver_tokio);
+        let mut service_controller = ServiceController::new(receiver);
         service_controller
             .run()
             .await
             .expect("Not possible to run thread loop");
     });
 
-    tokio::spawn(async move {
-        let mut service_controller = ServiceController::new(receiver_tokio2);
-        service_controller
-            .run()
-            .await
-            .expect("Not possible to run thread loop");
-    });
+    // tokio::spawn(async move {
+    //     let mut service_controller = ServiceController::new(receiver_tokio);
+    //     service_controller
+    //         .run()
+    //         .await
+    //         .expect("Not possible to run thread loop");
+    // });
+
+    // tokio::spawn(async move {
+    //     let mut service_controller = ServiceController::new(receiver_tokio2);
+    //     service_controller
+    //         .run()
+    //         .await
+    //         .expect("Not possible to run thread loop");
+    // });
 
  // TODO: try this: https://users.rust-lang.org/t/new-with-async-how-to-structure-application/35233/4
     // tokio::spawn(async move {
