@@ -4,6 +4,9 @@ use std::*;
 #[macro_use]
 extern crate log;
 
+type ResultSend<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync + 'static>>;
+
+
 #[derive(Debug)]
 pub enum Message {
     RunCheck,
@@ -23,7 +26,7 @@ impl ServiceController {
         ServiceController { receiver }
     }
 
-    pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn run(&mut self) -> ResultSend<()> {
         // let receiver = Arc::clone(&self.receiver);
         // let receiver = self.
         test().await;
@@ -36,7 +39,7 @@ impl ServiceController {
                 trace!("ServiceController: message received {:?}", &message);
                 match message {
                     Message::RunCheck => {
-                        // test().await;
+                        test().await;
                         info!("ServiceController: now should be able to run task");
                     }
                     Message::Terminate => {

@@ -44,7 +44,7 @@ struct Check {
 
 // #[tokio::main]
 #[actix_rt::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> std::result::Result<(), std::io::Error> {
     std::env::set_var("RUST_LOG", "debug,actix_async=trace");
     env_logger::init();
 
@@ -67,12 +67,11 @@ async fn main() -> std::io::Result<()> {
     })
     .expect("Error setting Ctrl+C handler");
 
-    tokio::spawn(async move {
+    let control_future = tokio::spawn(async move {
         let mut service_controller = ServiceController::new(receiver);
         service_controller
             .run()
             .await
-            .expect("Not possible to run thread loop");
     });
 
     // tokio::spawn(async move {
@@ -111,17 +110,17 @@ async fn main() -> std::io::Result<()> {
 
     info!("Starting web server");
     // async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let res = HttpServer::new(move || {
+    let server_future = HttpServer::new(move || {
         App::new()
             .service(index_id_name)
             .service(index)
             .service(api_stop)
             .data(Arc::clone(&sender))
     })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await;
+    .bind("127.0.0.1:8080").expect("Not possible to bind to address")
+    .run();
 
+    let res = futures::join!(server_future, control_future);
     info!("Server finished");
-    res
+    res.0
 }
