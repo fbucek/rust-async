@@ -1,0 +1,11 @@
+[package]
+name = "parser"
+version = "0.1.0"
+authors = ["<fbucek@invloop.cz>"]
+edition = "2018"
+
+[dependencies]
+error-chain = "0.12.1"
+select = "0.4.3"
+reqwest = "0.10.1"
+tokio = "0.2.9"
