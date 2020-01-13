@@ -55,15 +55,18 @@ impl ServiceController {
     }
 
     pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let receiver = Arc::clone(&self.receiver);
+        // let receiver = Arc::clone(&self.receiver);
         // let receiver = self.
         // tokio::spawn(async move {
-            while let Some(message) = receiver.lock().unwrap().recv().await {
+            loop {
+                let mut receiver = self.receiver.lock().unwrap();
+                let message = receiver.recv().await.unwrap();
+            // while let Some(message) = receiver.lock().unwrap().recv().await {
                 // let message = receiver.lock().unwrap().recv().await.unwrap();
                 trace!("ServiceController: message received {:?}", &message);
                 match message {
                     Message::RunCheck => {
-                        test();
+                        // test();
                         info!("ServiceController: now should be able to run task");
                     }
                     Message::Terminate => {
@@ -130,21 +133,21 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Not possible to run thread loop");
 
-    tokio::spawn(async move {
-        let mut service_controller = ServiceController::new(receiver_tokio);
-        service_controller
-            .run()
-            .await
-            .expect("Not possible to run thread loop");
-    });
+    // tokio::spawn(async move {
+    //     let mut service_controller = ServiceController::new(receiver);
+    //     service_controller
+    //         .run()
+    //         .await
+    //         .expect("Not possible to run thread loop");
+    // });
 
-    tokio::spawn(async move {
-        let mut service_controller = ServiceController::new(receiver_tokio2);
-        service_controller
-            .run()
-            .await
-            .expect("Not possible to run thread loop");
-    });
+    // tokio::spawn(async move {
+    //     let mut service_controller = ServiceController::new(receiver);
+    //     service_controller
+    //         .run()
+    //         .await
+    //         .expect("Not possible to run thread loop");
+    // });
 
  // TODO: try this: https://users.rust-lang.org/t/new-with-async-how-to-structure-application/35233/4
     // tokio::spawn(async move {

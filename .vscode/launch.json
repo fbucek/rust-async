@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'actix-async'",
+            "name": "Debug executable 'actix_async'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=actix-async",
-                    "--package=actix-async"
+                    "--bin=actix_async",
+                    "--package=actix_async"
                 ],
                 "filter": {
-                    "name": "actix-async",
+                    "name": "actix_async",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'actix-async'",
+            "name": "Debug unit tests in executable 'actix_async'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=actix-async",
-                    "--package=actix-async"
+                    "--bin=actix_async",
+                    "--package=actix_async"
                 ],
                 "filter": {
-                    "name": "actix-async",
+                    "name": "actix_async",
                     "kind": "bin"
                 }
             },
