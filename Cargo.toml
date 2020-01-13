@@ -4,5 +4,6 @@ members = [
     "actix-async",
     "async-std",
     "bug-rustc",
+    "parser",
     "tokio-async",
 ]
