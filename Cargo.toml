@@ -2,8 +2,8 @@
 
 members = [
     "actix-async",
+    "actixssl",
     "async-std",
-    "bug-rustc",
     "parser",
     "tokio-async",
 ]
