@@ -1,7 +1,7 @@
 [package]
-name = "bugrustc"
+name = "actixssl"
 version = "0.1.0"
-authors = ["<fbucek@invloop.cz>"]
+authors = [" <fbucek@invloop.cz>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -18,6 +18,8 @@ log = "0.4.8"
 # clap = "2.33.0"
 ctrlc = "3.1.3"
 
-actix-web = "2.0.0"
+actix-web = { version = "2.0.0", features = ["openssl"] }
+openssl = "0.10.26"
 actix-rt = "1.0.0"
-tokio = "0.2.6"
+# tokio = { version = "0.2.9", features = ["full"] }
+# futures = "0.3.1"
