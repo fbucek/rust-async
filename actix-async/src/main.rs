@@ -31,9 +31,9 @@ async fn api_run(
     Ok(HttpResponse::Ok().body(text))
 }
 
-#[get("/index.html")]
+#[get("/")]
 async fn index() -> &'static str {
-    "hello\n"
+    "Hello World!"
 }
 
 #[derive(Default, Debug)]

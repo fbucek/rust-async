@@ -4,6 +4,7 @@ members = [
     "actix-async",
     "actixssl",
     "async-std",
+    "hyper",
     "parser",
     "tokio-async",
 ]
