@@ -26,6 +26,26 @@ function bench() {
   wrk -t10 -c100 -d1s http://localhost:3000/
   pkill hyper
 
+  info "Bench warp"
+  cargo run --bin warp --release &
+  sleep 2
+  info "Bench warp ab"
+  ab -r -n 100 -c 10 http://localhost:3030/
+  info "Bench warp wrk"
+  wrk -t10 -c100 -d1s http://localhost:3030/
+  pkill warp
+
+  info "Bench warpssl"
+  cd warpssl
+  cargo run --bin warpssl --release &
+  sleep 2
+  info "Bench warpssl ab"
+  ab -r -n 100 -c 10 https://localhost:3030/
+  info "Bench warpssl wrk"
+  wrk -t10 -c100 -d1s https://localhost:3030/
+  pkill warpssl
+  cd ..
+
 
 }
 
