@@ -5,6 +5,7 @@ members = [
     "actixssl",
     "async-std",
     "hyper",
+    "hyperssl",
     "parser",
     "tokio-async",
 ]

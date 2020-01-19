@@ -5,6 +5,8 @@
 
 ## Actix ( dead for now )
 
+Watch Azure iotedge using actix [issues](https://github.com/Azure/iotedge/issues)
+
 
 ## Hyper
 
