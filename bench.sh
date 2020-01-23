@@ -22,6 +22,15 @@ function bench() {
   pkill actix_async
   sleep 1
 
+  cargo run --bin actixssl --release &
+  sleep 2
+  info "Bench actixssl ab"
+  ab -r -n 100 -c 10 https://localhost:8088/
+  info "Bench actixssl wrk"
+  wrk -t10 -c100 -d1s https://localhost:8088/
+  pkill actixssl
+  sleep 1
+
   info "Bench hyper"
   cargo run --bin hyper --release &
   sleep 2
