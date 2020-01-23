@@ -1,5 +1,9 @@
 #!/usr/bin/env bash 
 
+
+# Simple unvalid benchmark just to test if there is big difference or not
+# Number does reflect production use
+
 main() {
     bench
 }
@@ -16,6 +20,7 @@ function bench() {
   info "Bench actix wrk"
   wrk -t10 -c100 -d1s http://localhost:8080/
   pkill actix_async
+  sleep 1
 
   info "Bench hyper"
   cargo run --bin hyper --release &
@@ -25,6 +30,7 @@ function bench() {
   info "Bench hyper wrk"
   wrk -t10 -c100 -d1s http://localhost:3000/
   pkill hyper
+  sleep 1
 
   info "Bench warp"
   cargo run --bin warp --release &
@@ -34,6 +40,7 @@ function bench() {
   info "Bench warp wrk"
   wrk -t10 -c100 -d1s http://localhost:3030/
   pkill warp
+  sleep 1
 
   info "Bench warpssl"
   cd warpssl
