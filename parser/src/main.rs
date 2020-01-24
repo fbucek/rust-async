@@ -22,15 +22,21 @@ async fn main() -> Result<()> {
     .text()
     .await?;
 
+    // Get DOM from returned BODY
     let document = Document::from(body.as_str());
 
+    // Get current directory
     let path = std::env::current_dir()?;
 
+
+    // Process html and return tuple ( url, filepath)
+    // in: 
     let vec = document
         .find(Name("a"))
         .filter(|node| node.attr("data-url").is_some())
+        .filter(|node| node.attr("data-nazev").is_some())
         .map(|node| { // map data from <a href data-url=... data-nazev=...>
-            let mut name = node.attr("data-nazev").expect("Not possible to get attribute data-nazev").to_string();
+            let mut name = node.attr("data-nazev").unwrap().to_string();
             name.push_str(".jpg");
             let raw_url = node.attr("data-url").unwrap();
             let url = &raw_url[2..];
@@ -56,36 +62,6 @@ async fn main() -> Result<()> {
             Err(err) => eprintln!("Error writing file: {:?}", err)
         }
     }
-
-//     let data = reqwest::get(url)
-//     .await
-//     .unwrap()
-//     .bytes()
-//     .await
-//     .unwrap();
-
-// 
-
-
-
-
-
-
-
-
-
-
-    //     // .find(Name("a")).collect();
-
-    // for item in document.find(Name("a")) {
-
-    //     if item.attr("data-url").is_some() {
-
-    //         println!("{}", item.attr("data-url").unwrap());
-    //     }
-    // }
-        // .filter(|n| n.attr("href"))
-        // .for_each(|x| println!("{}", x));
 
     Ok(())
 }
