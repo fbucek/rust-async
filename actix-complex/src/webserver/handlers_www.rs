@@ -44,9 +44,10 @@ async fn password(auth: BasicAuth, info: web::Path<(u32, String)>)
     trace!("First checking credentials");
     match validator::check_credentials(auth) {
         Ok(_) => Ok(HttpResponse::Ok().body(format!("Hello {}! id:{}\n", info.1, info.0))),
-        Err(_) => {
+        Err(err) => {
             trace!("unauthorized access");
-            Ok(HttpResponse::Unauthorized().body("Wrong credentials"))
+            Err(err)
+            // Err(HttpResponse::Unauthorized().body("Wrong credentials"))
         }
     }
 }
@@ -86,7 +87,7 @@ mod tests {
             ("", StatusCode::OK, "Hello World!"),
             ("/notfound", StatusCode::NOT_FOUND, ""),
             ("/34/filip/index.html", StatusCode::OK, "Hello filip! id:34\n"),
-            ("/private/test", actix_web::http::StatusCode::UNAUTHORIZED, "Wrong username or password"),
+            ("/private/test", actix_web::http::StatusCode::UNAUTHORIZED, ""),
             ("/public/test", actix_web::http::StatusCode::OK, "Public!"),
         ];
 
