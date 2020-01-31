@@ -1,9 +1,6 @@
 // Actix
-use actix_web::{dev, HttpResponse, Error};
-use actix_web_httpauth::extractors::{
-    basic::{BasicAuth, Config},
-    AuthenticationError,
-};
+use actix_web::{dev, Error};
+use actix_web_httpauth::extractors::basic::BasicAuth;
 
 /// Check if user and password is correct
 pub fn check_credentials(credentials: BasicAuth) -> Result<(), Error> {
