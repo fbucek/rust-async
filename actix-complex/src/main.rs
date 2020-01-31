@@ -44,8 +44,8 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     // async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server_future = HttpServer::new(move || {
         App::new()
-            .configure(webserver::appconfig::api_config)
-            .configure(webserver::appconfig::www_config)
+            .configure(webserver::handlers_api::config)
+            .configure(webserver::handlers_www::config)
             .data(Arc::clone(&sender))
     })
     .bind("127.0.0.1:8080").expect("Not possible to bind to address")

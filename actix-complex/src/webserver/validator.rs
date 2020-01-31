@@ -1,6 +1,9 @@
 // Actix
-use actix_web::{dev, Error};
-use actix_web_httpauth::extractors::basic::BasicAuth;
+use actix_web::{dev, HttpResponse, Error};
+use actix_web_httpauth::extractors::{
+    basic::{BasicAuth, Config},
+    AuthenticationError,
+};
 
 /// Check if user and password is correct
 pub fn check_credentials(credentials: BasicAuth) -> Result<(), Error> {
@@ -19,12 +22,12 @@ pub fn check_credentials(credentials: BasicAuth) -> Result<(), Error> {
 }
 
 /// Middleware validator
-pub fn auth_validator(
+pub async fn auth_validator(
     req: dev::ServiceRequest,
     credentials: BasicAuth,
 ) -> Result<dev::ServiceRequest, Error> {
     match check_credentials(credentials) {
         Ok(_) => Ok(req),
-        Err(err) => Err(err)
+        Err(err) => Err(err),
     }
 }

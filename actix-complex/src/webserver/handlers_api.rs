@@ -7,6 +7,14 @@ use futures::lock::Mutex;
 
 use crate::controller;
 
+pub fn config(_cfg: &mut actix_web::web::ServiceConfig) {
+    _cfg
+        .service(api_run)
+        .service(increment)
+        .service(decrement);
+}
+
+
 #[get("/api/run")]
 async fn api_run(
     sender: web::Data<Arc<Mutex<tokio::sync::mpsc::Sender<controller::Message>>>>,
@@ -27,7 +35,7 @@ async fn api_run(
 }
 
 #[get("/api/increment")]
-pub async fn increment(
+async fn increment(
     counter: web::Data<Arc<Mutex<i32>>>,
 ) -> Result<actix_http::Response, actix_web::Error> {
     let mut counter = counter.lock().await;
@@ -36,7 +44,7 @@ pub async fn increment(
 }
 
 #[get("/api/decrement")]
-pub async fn decrement(
+async fn decrement(
     counter: web::Data<Arc<Mutex<i32>>>,
 ) -> Result<actix_http::Response, actix_web::Error> {
     let mut counter = counter.lock().await;
