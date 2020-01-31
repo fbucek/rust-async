@@ -2,6 +2,7 @@
 
 members = [
     "actix-async",
+    "actix-complex",
     "actixssl",
     "async-std",
     "hyper",
