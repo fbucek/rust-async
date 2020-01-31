@@ -1,16 +1,16 @@
-use actix_web::{get, web, Responder};
+use actix_web::{get, web, Responder, HttpResponse};
 use actix_web_httpauth::{
-    extractors::basic::{BasicAuth, Config},
+    extractors::basic::BasicAuth,
     middleware::HttpAuthentication,
 };
 
 use super::validator;
 
-pub fn config(_cfg: &mut actix_web::web::ServiceConfig) {
+pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
 
     let auth = HttpAuthentication::basic(validator::auth_validator);
 
-    _cfg
+    cfg
         .service(index)
         .service(index_id_name)
         .service(password)
@@ -18,9 +18,12 @@ pub fn config(_cfg: &mut actix_web::web::ServiceConfig) {
             .service(public_test)
         )
         .service(web::scope("/private")
-            .data(Config::default().realm("Restricted area"))
+            // .data(Config::default().realm("Restricted area"))
             .wrap(auth)
             .service(private_test)
+            // .default_service(
+            //     web::route().to(|| HttpResponse::Unauthorized().body("Not correct password or username")),
+            // )
         );
 }
 
@@ -36,10 +39,15 @@ async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
 }
 
 #[get("/password/{id}/{name}")]
-async fn password(auth: BasicAuth, info: web::Path<(u32, String)>) -> impl Responder {
+async fn password(auth: BasicAuth, info: web::Path<(u32, String)>) 
+-> Result<actix_http::Response, actix_web::Error>  {
+    trace!("First checking credentials");
     match validator::check_credentials(auth) {
-        Ok(_) => Ok(format!("Hello {}! id:{}\n", info.1, info.0)),
-        Err(err) => Err (err)
+        Ok(_) => Ok(HttpResponse::Ok().body(format!("Hello {}! id:{}\n", info.1, info.0))),
+        Err(_) => {
+            trace!("unauthorized access");
+            Ok(HttpResponse::Unauthorized().body("Wrong credentials"))
+        }
     }
 }
 
@@ -74,9 +82,12 @@ mod tests {
         });
 
         let vec = vec![
+            ("/", StatusCode::OK, "Hello World!"),
+            ("", StatusCode::OK, "Hello World!"),
+            ("/notfound", StatusCode::NOT_FOUND, ""),
             ("/34/filip/index.html", StatusCode::OK, "Hello filip! id:34\n"),
-            ("/private/test", actix_web::http::StatusCode::UNAUTHORIZED, ""),
-            ("/public/test", actix_web::http::StatusCode::OK, ""),
+            ("/private/test", actix_web::http::StatusCode::UNAUTHORIZED, "Wrong username or password"),
+            ("/public/test", actix_web::http::StatusCode::OK, "Public!"),
         ];
 
         for test in vec {

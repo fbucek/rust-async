@@ -13,7 +13,7 @@ use actixcomplex::webserver;
 // #[tokio::main]
 #[actix_rt::main]
 async fn main() -> std::result::Result<(), std::io::Error> {
-    std::env::set_var("RUST_LOG", "debug,actix_async=trace");
+    std::env::set_var("RUST_LOG", "debug,actixcomplex=trace");
     env_logger::init();
 
     // Create sender and receiver to communicate with loop

@@ -1,5 +1,5 @@
 // Actix
-use actix_web::{dev, Error};
+use actix_web::{dev, Error, HttpResponse};
 use actix_web_httpauth::extractors::basic::BasicAuth;
 
 /// Check if user and password is correct
@@ -23,8 +23,11 @@ pub async fn auth_validator(
     req: dev::ServiceRequest,
     credentials: BasicAuth,
 ) -> Result<dev::ServiceRequest, Error> {
+    trace!("auth_validator checking");
     match check_credentials(credentials) {
         Ok(_) => Ok(req),
-        Err(err) => Err(err),
+        Err(err) => {
+            Err(err),
+        }
     }
 }
