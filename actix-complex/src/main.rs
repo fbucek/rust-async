@@ -1,4 +1,4 @@
-use actix_web::{get, App, HttpServer};
+use actix_web::{App, HttpServer};
 use std::sync::Arc;
 use futures::lock::Mutex;
 
@@ -10,19 +10,6 @@ extern crate log;
 use actixcomplex::controller;
 use actixcomplex::webserver;
 
-
-
-#[get("/")]
-async fn index() -> &'static str {
-    "Hello World!"
-}
-
-#[derive(Default, Debug)]
-struct Check {
-    ip: String,
-    port: String,
-}
-
 // #[tokio::main]
 #[actix_rt::main]
 async fn main() -> std::result::Result<(), std::io::Error> {
@@ -32,6 +19,18 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     // Create sender and receiver to communicate with loop
     let (sender, receiver) = tokio::sync::mpsc::channel(10);
     let sender = Arc::new(Mutex::new(sender)); // <-- Actix loop
+    let sender_exit = sender.clone();
+
+    // Gracefull shutdown -> SIGTERM received -> send message terminate
+    ctrlc::set_handler(move || {
+        loop {
+            if let Some(mut sender) = sender_exit.try_lock() {
+                sender.try_send(controller::Message::Terminate).expect("not possible to send terminate message");
+                break;
+            }
+        }
+    })
+    .expect("Error setting Ctrl+C handler");
 
     let control_future = tokio::spawn(async move {
         let mut service_controller = controller::ServiceController::new(receiver);
@@ -41,12 +40,13 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     });
 
     info!("Starting web server");
-    info!("paste into web browser to test: 127.0.0.1:8080/api/run");
+    info!("http://127.0.0.1:8080/api/run");
     // async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server_future = HttpServer::new(move || {
         App::new()
             .service(webserver::handlers::index_id_name)
-            .service(index)
+            .service(webserver::handlers::index)
+            .service(webserver::handlers::password)
             .service(webserver::api::api_run)
             .data(Arc::clone(&sender))
     })

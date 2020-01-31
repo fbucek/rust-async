@@ -1,4 +1,12 @@
 use actix_web::{get, web, Responder};
+use actix_web_httpauth::extractors::basic::BasicAuth;
+
+use super::validator;
+
+#[get("/")]
+async fn index() -> &'static str {
+    "Hello World!"
+}
 
 
 #[get("/{id}/{name}/index.html")]
@@ -7,8 +15,11 @@ async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
 }
 
 #[get("/password")]
-async fn password(info: web::Path<(u32, String)>) -> impl Responder {
-    format!("Hello {}! id:{}\n", info.1, info.0)
+async fn password(auth: BasicAuth, info: web::Path<(u32, String)>) -> impl Responder {
+    match validator::check_credentials(auth) {
+        Ok(_) => Ok(format!("Hello {}! id:{}\n", info.1, info.0)),
+        Err(err) => Err (err)
+    }
 }
 
 
@@ -25,6 +36,7 @@ mod tests {
         let mut app = actix_web::test::init_service(
             actix_web::App::new()
             .service(index_id_name)
+            .service(password)
         ).await;
 
         let in_uri = "/34/filip/index.html";
