@@ -26,8 +26,6 @@ pub async fn auth_validator(
     trace!("auth_validator checking");
     match check_credentials(credentials) {
         Ok(_) => Ok(req),
-        Err(err) => {
-            Err(err),
-        }
+        Err(err) => Err(err),
     }
 }
