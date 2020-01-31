@@ -103,7 +103,7 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     });
 
     info!("Starting web server");
-    info!("paste into web browser to test: 127.0.0.1:8080/api/run");
+    info!("http://127.0.0.1:8080/api/run");
     // async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server_future = HttpServer::new(move || {
         App::new()
