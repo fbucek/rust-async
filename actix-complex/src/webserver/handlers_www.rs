@@ -60,16 +60,46 @@ mod tests {
     //use futures::*;
     use super::*;
 
+
     /// 
     #[actix_rt::test]
     async fn test_index_id_name() {
+        std::env::set_var("RUST_LOG", "error,trace");
+
+        use actix_web::http::StatusCode;
+
+        let srv = actix_web::test::start(|| {
+            actix_web::App::new()
+                .configure(config)
+        });
+
+        let vec = vec![
+            ("/34/filip/index.html", StatusCode::UNAUTHORIZED, "Hello filip! id:34\n"),
+        ];
+
+        for test in vec {
+            let uri = test.0;
+            let status = test.1;
+            let body = test.2;
+
+            let mut response = srv.get(&uri).send().await.unwrap();
+            assert_eq!(response.status(), status);
+            if !body.is_empty() {
+                let bytes = response.body().await.unwrap();
+                assert_eq!(body, bytes);
+            }
+        }
+    }
+
+    /// Service test ( not necessary )
+    #[actix_rt::test]
+    async fn test_index_id_name_service() {
         std::env::set_var("RUST_LOG", "error,trace");
 
         let mut app = actix_web::test::init_service(
             actix_web::App::new()
                 .configure(config)
         ).await;
-
 
         let in_uri = "/34/filip/index.html";
         let out_body = "Hello filip! id:34\n";
@@ -91,16 +121,19 @@ mod tests {
         assert_eq!(server_response.status(), actix_web::http::StatusCode::NOT_FOUND);
     }
 
+
+
+
     /// 
     #[actix_rt::test]
     async fn test_auth() {
         std::env::set_var("RUST_LOG", "error,trace");
 
-        let mut app = actix_web::test::init_service(
+        let srv = actix_web::test::start(|| {
             actix_web::App::new()
                 .configure(config)
-        ).await;
-
+        });
+        
         let vec = vec![
             ("/private/test", actix_web::http::StatusCode::UNAUTHORIZED),
             ("/public/test", actix_web::http::StatusCode::OK),
@@ -109,10 +142,8 @@ mod tests {
         for test in vec {
             let uri = test.0;
             let status = test.1;
-            let server_request = actix_web::test::TestRequest::with_uri(&uri).to_request();
-            let server_response = actix_web::test::call_service(&mut app, server_request).await;
-            // Check status
-            // assert_eq!(server_response.status(), status);
+            let response = srv.get(&uri).send().await.unwrap();
+            assert_eq!(response.status(), status);
         }
     }
 }
