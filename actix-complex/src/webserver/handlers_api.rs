@@ -1,19 +1,15 @@
-use actix_web::{get, web, HttpResponse, Error as ActixError};
 use actix_http;
+use actix_web::{get, web, Error as ActixError, HttpResponse};
 
 // Synchronization
-use std::sync::Arc;
 use futures::lock::Mutex;
+use std::sync::Arc;
 
 use crate::controller;
 
 pub fn config(_cfg: &mut actix_web::web::ServiceConfig) {
-    _cfg
-        .service(api_run)
-        .service(increment)
-        .service(decrement);
+    _cfg.service(api_run).service(increment).service(decrement);
 }
-
 
 #[get("/api/run")]
 async fn api_run(
@@ -21,12 +17,15 @@ async fn api_run(
 ) -> Result<HttpResponse, ActixError> {
     // trace!("{:?}", sender);
     let mut sender = sender.lock().await;
-    sender.send(controller::Message::RunCheck).await.unwrap_or_else(|err| {
-        error!(
-            "Not possible to send message -> RunCheck - error: {:?}",
-            err
-        )
-    });
+    sender
+        .send(controller::Message::RunCheck)
+        .await
+        .unwrap_or_else(|err| {
+            error!(
+                "Not possible to send message -> RunCheck - error: {:?}",
+                err
+            )
+        });
     // if let Err(err) = sender.send(controller::Message::RunCheck).unwrap() {
     //     error!("Not possible to send message -> RunCheck");
     // }

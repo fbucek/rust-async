@@ -1,6 +1,6 @@
 use actix_web::{App, HttpServer};
-use std::sync::Arc;
 use futures::lock::Mutex;
+use std::sync::Arc;
 
 use std::*;
 
@@ -22,21 +22,19 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     let sender_exit = sender.clone();
 
     // Gracefull shutdown -> SIGTERM received -> send message terminate
-    ctrlc::set_handler(move || {
-        loop {
-            if let Some(mut sender) = sender_exit.try_lock() {
-                sender.try_send(controller::Message::Terminate).expect("not possible to send terminate message");
-                break;
-            }
+    ctrlc::set_handler(move || loop {
+        if let Some(mut sender) = sender_exit.try_lock() {
+            sender
+                .try_send(controller::Message::Terminate)
+                .expect("not possible to send terminate message");
+            break;
         }
     })
     .expect("Error setting Ctrl+C handler");
 
     let control_future = tokio::spawn(async move {
         let mut service_controller = controller::ServiceController::new(receiver);
-        service_controller
-            .run()
-            .await
+        service_controller.run().await
     });
 
     info!("Starting web server");
@@ -50,7 +48,8 @@ async fn main() -> std::result::Result<(), std::io::Error> {
             .configure(webserver::handlers_www::config)
             .data(Arc::clone(&sender))
     })
-    .bind("127.0.0.1:8080").expect("Not possible to bind to address")
+    .bind("127.0.0.1:8080")
+    .expect("Not possible to bind to address")
     .run();
 
     let res = futures::join!(server_future, control_future);

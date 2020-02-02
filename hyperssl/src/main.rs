@@ -4,10 +4,9 @@ use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 
 // OpenSSL
-use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslMethod, SslFiletype};
+use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 
 type Res<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
-
 
 async fn hello(_: Request<Body>) -> Result<Response<Body>, Infallible> {
     Ok(Response::new(Body::from("Hello World!")))
@@ -25,7 +24,6 @@ fn ssl() -> Res<SslAcceptorBuilder> {
 
     Ok(acceptor)
 }
-
 
 #[tokio::main]
 pub async fn main() -> Res<()> {

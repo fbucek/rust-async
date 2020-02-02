@@ -6,18 +6,16 @@ async fn index(_req: HttpRequest) -> impl Responder {
     "Welcome!"
 }
 
-
-
 /// load ssl keys
 /// to create a self-signed temporary cert for testing:
 /// `openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost'`
-/// 
+///
 /// # Add certificat to be trusted
-/// 
+///
 /// https://apple.stackexchange.com/a/80625
 /// `sudo security delete-certificate -c localhost`
 /// `sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain localhost.crt`
-/// 
+///
 /// `openssl req -x509 -out localhost.crt -keyout localhost.key \
 ///  -newkey rsa:2048 -nodes -sha256 \
 ///   -subj '/CN=localhost' -extensions EXT -config <( \
@@ -25,14 +23,12 @@ async fn index(_req: HttpRequest) -> impl Responder {
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-
     let certificate = "actixssl/keys/actix-localhost.crt";
     let private_key = "actixssl/keys/actix-localhost.key";
 
     let cur_dir = std::env::current_dir().expect("not possible to get current dir");
     println!("cur_dir: {}", &cur_dir.to_str().unwrap());
-    let mut builder =
-        SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
         .set_private_key_file(&private_key, SslFiletype::PEM)
         .unwrap();

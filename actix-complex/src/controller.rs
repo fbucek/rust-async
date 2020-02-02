@@ -18,7 +18,10 @@ impl ServiceController {
 
     pub async fn run(&mut self) -> ResultSend<()> {
         loop {
-            let message = self.receiver.recv().await
+            let message = self
+                .receiver
+                .recv()
+                .await
                 .expect("ServiceController: Not possible to receive message");
             // let message = receiver.lock().unwrap().recv().await.unwrap();
             trace!("ServiceController: message received {:?}", &message);
