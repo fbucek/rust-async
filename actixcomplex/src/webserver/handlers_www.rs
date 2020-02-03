@@ -34,7 +34,10 @@ async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
 async fn password(
     auth: BasicAuth,
     info: web::Path<(u32, String)>,
-) -> Result<actix_http::Response, actix_web::Error> {
+    // @see https://docs.rs/actix-web/2.0.0/actix_web/trait.Responder.html
+    // @see https://github.com/actix/actix-web/blob/6c9f9fff735023005a99bb3d17d3359bb46339c0/src/responder.rs#L106
+) -> impl Responder {
+// ) -> Result<actix_http::Response, actix_web::Error> {
     trace!("First checking credentials");
     match validator::check_credentials(auth) {
         Ok(_) => Ok(HttpResponse::Ok().body(format!("Hello {}! id:{}\n", info.1, info.0))),

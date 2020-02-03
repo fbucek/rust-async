@@ -1,8 +1,8 @@
 [workspace]
 
 members = [
-    "actix-async",
-    "actix-complex",
+    "actixasync",
+    "actixcomplex",
     "actixssl",
     "async-std",
     "hyper",
