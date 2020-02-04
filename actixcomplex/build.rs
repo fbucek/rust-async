@@ -1,4 +1,4 @@
 /// TODO: finish
-pub fn main() -> {
+pub fn main() {
     
-} 
+}
