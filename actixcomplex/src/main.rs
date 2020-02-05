@@ -1,6 +1,7 @@
 use actix_web::{App, HttpServer};
 use futures::lock::Mutex;
 use std::sync::Arc;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 use std::*;
 
@@ -15,6 +16,15 @@ use actixcomplex::webserver;
 async fn main() -> std::result::Result<(), std::io::Error> {
     std::env::set_var("RUST_LOG", "debug,actixcomplex=trace");
     env_logger::init();
+
+
+    let certificate = "actixcomplex/keys/actixcomplex.crt";
+    let private_key = "actixcomplex/keys/actixcomplex.key";
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    builder
+        .set_private_key_file(&private_key, SslFiletype::PEM)
+        .unwrap();
+    builder.set_certificate_chain_file(&certificate).unwrap();
 
     // Create sender and receiver to communicate with loop
     let (sender, receiver) = tokio::sync::mpsc::channel(10);
@@ -38,9 +48,9 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     });
 
     info!("Starting web server");
-    info!("http://127.0.0.1:8080/api/run");
-    info!("http://127.0.0.1:8080/private/test");
-    info!("http://127.0.0.1:8080/password/41/filip");
+    info!("https://localhost:8088/api/run");
+    info!("https://localhost:8088/private/test");
+    info!("https://localhost:8088/password/41/filip");
     // async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server_future = HttpServer::new(move || {
         App::new()
@@ -48,8 +58,9 @@ async fn main() -> std::result::Result<(), std::io::Error> {
             .configure(webserver::handlers_www::config)
             .data(Arc::clone(&sender))
     })
-    .bind("127.0.0.1:8080")
-    .expect("Not possible to bind to address")
+    .bind_openssl("127.0.0.1:8088", builder)?
+    // .bind("127.0.0.1:8080")
+    // .expect("Not possible to bind to address")
     .run();
 
     let res = futures::join!(server_future, control_future);
