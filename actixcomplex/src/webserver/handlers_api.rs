@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 use crate::controller;
 
-pub fn config(_cfg: &mut actix_web::web::ServiceConfig) {
-    _cfg.service(api_run).service(increment).service(decrement);
+pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
+    cfg.service(api_run).service(increment).service(decrement);
 }
 
 #[get("/api/run")]

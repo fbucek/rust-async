@@ -1,4 +1,46 @@
+//! Basic http authentification
+//! 
+//! ```
+//! use actix_web::{App, HttpServer};
+//! use futures::lock::Mutex;
+//! use std::sync::Arc;
+//! use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+//! 
+//! use std::*;
+//! 
+//! #[macro_use]
+//! extern crate log;
+//! 
+//! use actixcomplex::controller;
+//! use actixcomplex::webserver;
+//! 
+//! #[actix_rt::main]
+//! async fn main() -> io::Result<()> {
+//!     let auth = HttpAuthentication::basic(validator::auth_validator);
+//! 
+//! //    HttpServer::new(move || {
+//! //       App::new()
+//! //           .wrap()
+//! //           .configure(webserver::handlers_api::config)
+//! //           .configure(webserver::handlers_www::config)
+//! //           .data(Arc::clone(&sender))
+//! //   })
+//! //   .bind("127.0.0.1:8080")?
+//! //   .run();
+//!
+//!     Ok(())
+//! }
+//! 
+//! 
+//! 
+//! #[actix_rt::main]
+//! ```
+//! 
+//! 
 // Actix
+
+
+
 use actix_web::{dev, Error};
 use actix_web_httpauth::extractors::basic::BasicAuth;
 

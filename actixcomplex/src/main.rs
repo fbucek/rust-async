@@ -17,7 +17,7 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     std::env::set_var("RUST_LOG", "debug,actixcomplex=trace");
     env_logger::init();
 
-
+    // Enabled SSL
     let certificate = "actixcomplex/keys/actixcomplex.crt";
     let private_key = "actixcomplex/keys/actixcomplex.key";
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
