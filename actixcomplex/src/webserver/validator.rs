@@ -2,14 +2,8 @@
 //! 
 //! ```rust
 //! use actix_web::{App, get, HttpServer};
-//! use actix_web_httpauth::{extractors::basic::BasicAuth, middleware::HttpAuthentication};
+//! use actix_web_httpauth::middleware::HttpAuthentication;
 //! 
-//! use std::*;
-//! 
-//! #[macro_use]
-//! extern crate log;
-//! 
-//! use actixcomplex::controller;
 //! use actixcomplex::webserver;
 //! 
 //! #[get("/")]
@@ -18,7 +12,7 @@
 //! }
 //! 
 //! #[actix_rt::main]
-//! async fn main() -> io::Result<()> {
+//! async fn main() -> std::io::Result<()> {
 //! 
 //!     HttpServer::new(move || {
 //!        let auth = HttpAuthentication::basic(webserver::validator::auth_validator);
@@ -33,9 +27,6 @@
 //! }
 //! 
 //! ```
-//! 
-//! 
-// Actix
 
 
 
