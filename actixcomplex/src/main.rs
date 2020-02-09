@@ -18,8 +18,8 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     env_logger::init();
 
     // Enabled SSL
-    let certificate = "actixcomplex/keys/actixcomplex.crt";
-    let private_key = "actixcomplex/keys/actixcomplex.key";
+    let (certificate, private_key) = webserver::ssl::ssl_certificates()?;
+
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
         .set_private_key_file(&private_key, SslFiletype::PEM)
