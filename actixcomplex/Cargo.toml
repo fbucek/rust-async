@@ -29,4 +29,3 @@ openssl = "0.10.26"
 
 # Serializers
 serde = "1.0.104"
-

@@ -1,10 +1,8 @@
 //! Basic http authentification
 //! 
-//! ```
-//! use actix_web::{App, HttpServer};
-//! use futures::lock::Mutex;
-//! use std::sync::Arc;
-//! use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+//! ```rust
+//! use actix_web::{App, get, HttpServer};
+//! use actix_web_httpauth::{extractors::basic::BasicAuth, middleware::HttpAuthentication};
 //! 
 //! use std::*;
 //! 
@@ -14,26 +12,26 @@
 //! use actixcomplex::controller;
 //! use actixcomplex::webserver;
 //! 
+//! #[get("/")]
+//! async fn index() -> &'static str {
+//!     "Hello World!"
+//! }
+//! 
 //! #[actix_rt::main]
 //! async fn main() -> io::Result<()> {
-//!     let auth = HttpAuthentication::basic(validator::auth_validator);
 //! 
-//! //    HttpServer::new(move || {
-//! //       App::new()
-//! //           .wrap()
-//! //           .configure(webserver::handlers_api::config)
-//! //           .configure(webserver::handlers_www::config)
-//! //           .data(Arc::clone(&sender))
-//! //   })
-//! //   .bind("127.0.0.1:8080")?
-//! //   .run();
+//!     HttpServer::new(move || {
+//!        let auth = HttpAuthentication::basic(webserver::validator::auth_validator);
+//!        App::new()
+//!            .wrap(auth)
+//!            .service(index)
+//!    })
+//!    .bind("127.0.0.1:7070")?
+//!    .run();
 //!
 //!     Ok(())
 //! }
 //! 
-//! 
-//! 
-//! #[actix_rt::main]
 //! ```
 //! 
 //! 
