@@ -1,12 +1,13 @@
 use actix_multipart::Multipart;
-use actix_web::{middleware, web, App, Error, HttpResponse, HttpServer};
+use actix_web::{middleware, get, post, App, Error, HttpResponse, HttpServer};
 use async_std::prelude::*;
 use futures::StreamExt;
 
 #[macro_use]
 extern crate log;
 
-async fn save_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
+#[post("/api/v1/log/upload")]
+async fn upload_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
     trace!("Saving file");
     // iterate over multipart stream
     while let Some(item) = payload.next().await {
@@ -30,16 +31,17 @@ async fn save_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().into())
 }
 
+#[get("/")]
 fn index() -> HttpResponse {
     let html = r#"<html>
-        <head><title>Upload Test</title></head>
-        <body>
-            <form target="/" method="post" enctype="multipart/form-data">
-                <input type="file" multiple name="file"/>
-                <input type="submit" value="Submit"></button>
-            </form>
-        </body>
-    </html>"#;
+    <head><title>Upload Test</title></head>
+    <body>
+        <form target="/api/v1/log/upload" method="post" enctype="multipart/form-data">
+            <input type="file" multiple name="file"/>
+            <input type="submit" value="Submit"></button>
+        </form>
+    </body>
+</html>"#;
 
     HttpResponse::Ok().body(html)
 }
@@ -56,11 +58,9 @@ async fn main() -> std::io::Result<()> {
     info!("Starting web server: {}", &ip);
 
     HttpServer::new(|| {
-        App::new().wrap(middleware::Logger::default()).service(
-            web::resource("/")
-                .route(web::get().to(index))
-                .route(web::post().to(save_file)),
-        )
+        App::new().wrap(middleware::Logger::default())
+            .service(index)
+            .service(upload_file)
     })
     .bind(ip)?
     .run()
