@@ -18,9 +18,9 @@ error_chain! {
 #[tokio::main]
 async fn main() -> Result<()> {
     let body: String = reqwest::get("https://enter-address")
-    .await?
-    .text()
-    .await?;
+        .await?
+        .text()
+        .await?;
 
     // Get DOM from returned BODY
     let document = Document::from(body.as_str());
@@ -28,14 +28,14 @@ async fn main() -> Result<()> {
     // Get current directory
     let path = std::env::current_dir()?;
 
-
     // Process html and return tuple ( url, filepath)
-    // in: 
+    // in:
     let vec = document
         .find(Name("a"))
         .filter(|node| node.attr("data-url").is_some())
         .filter(|node| node.attr("data-nazev").is_some())
-        .map(|node| { // map data from <a href data-url=... data-nazev=...>
+        .map(|node| {
+            // map data from <a href data-url=... data-nazev=...>
             let mut name = node.attr("data-nazev").unwrap().to_string();
             name.push_str(".jpg");
             let raw_url = node.attr("data-url").unwrap();
@@ -51,15 +51,12 @@ async fn main() -> Result<()> {
 
         println!("{}, {}", &url, &path);
 
-        let data = reqwest::get(&url)
-            .await?
-            .bytes()
-            .await?;
-        
+        let data = reqwest::get(&url).await?.bytes().await?;
+
         let mut file = std::fs::File::create(&path).expect("Not possible to create file");
         match file.write(&data) {
             Ok(size) => println!("Bytes written: {}", size),
-            Err(err) => eprintln!("Error writing file: {:?}", err)
+            Err(err) => eprintln!("Error writing file: {:?}", err),
         }
     }
 

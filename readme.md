@@ -1,5 +1,8 @@
 # Async examples
 
+Commands
+
+- Doc: `cargo doc --no-deps --document-private-items --open`
 
 ## Async-std
 

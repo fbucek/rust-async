@@ -57,24 +57,26 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     let sender2 = Arc::new(Mutex::new(sender2)); // <-- Actix loop
     let sender_exit2 = Arc::clone(&sender2); // <-- Ctrl+C handler
 
-
     // Gracefull shutdown -> SIGTERM received -> send message terminate
     ctrlc::set_handler(move || {
         let mut sender = sender_exit.lock().expect("not possible to lock");
         for _ in 0..4 {
             info!("sending terminate mesage");
-            sender.try_send(Message::Terminate).expect("not possible to send terminate message");
+            sender
+                .try_send(Message::Terminate)
+                .expect("not possible to send terminate message");
         }
         let mut sender = sender_exit2.lock().expect("not possible to lock");
         for _ in 0..4 {
             info!("sending terminate mesage");
-            sender.try_send(Message::Terminate).expect("not possible to send terminate message");
+            sender
+                .try_send(Message::Terminate)
+                .expect("not possible to send terminate message");
         }
     })
     .expect("Error setting Ctrl+C handler");
 
-    let builder = std::thread::Builder::new()
-        .name("second thread".into());  // into() -> to_string()
+    let builder = std::thread::Builder::new().name("second thread".into()); // into() -> to_string()
     let handler = builder.spawn(move || {
         let mut runtime = tokio::runtime::Builder::new() //Runtime::new().unwrap();
             .threaded_scheduler()
@@ -83,27 +85,27 @@ async fn main() -> std::result::Result<(), std::io::Error> {
             .build()
             .unwrap();
         trace!("Starging block_on");
-        runtime.block_on(async move { 
+        runtime.block_on(async move {
             tokio::spawn(async move {
                 let mut service_controller = ServiceController::new(receiver);
                 service_controller
                     .run()
-                    .await.expect("Not possible to run service controller");
-            }).await.expect("Not possible to finish tokio::spawn gracefully");
+                    .await
+                    .expect("Not possible to run service controller");
+            })
+            .await
+            .expect("Not possible to finish tokio::spawn gracefully");
         });
         trace!("End block on");
     });
 
-
     let control_future = tokio::spawn(async move {
         let mut service_controller = ServiceController::new(receiver2);
-        service_controller
-            .run()
-            .await
+        service_controller.run().await
     });
 
     info!("Starting web server");
-    info!("paste into web browser to test: 127.0.0.1:8080/api/run");
+    info!("http://127.0.0.1:8080/api/run");
     // async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server_future = HttpServer::new(move || {
         App::new()
@@ -112,11 +114,15 @@ async fn main() -> std::result::Result<(), std::io::Error> {
             .service(api_run)
             .data(Arc::clone(&sender))
     })
-    .bind("127.0.0.1:8080").expect("Not possible to bind to address")
+    .bind("127.0.0.1:8080")
+    .expect("Not possible to bind to address")
     .run();
 
     let res = futures::join!(server_future, control_future);
-    handler.expect("Not possible to join 'second thread'").join().unwrap();
+    handler
+        .expect("Not possible to join 'second thread'")
+        .join()
+        .unwrap();
     info!("Server finished");
     res.0
 }

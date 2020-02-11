@@ -4,17 +4,17 @@ use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 
 // OpenSSL
-use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslMethod, SslFiletype};
+use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 
 type Res<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
-
 
 async fn hello(_: Request<Body>) -> Result<Response<Body>, Infallible> {
     Ok(Response::new(Body::from("Hello World!")))
 }
 
-/// Builds an SSL implementation for Simple HTTPS from some hard-coded file names
+//f/ Builds an SSL implementation for Simple HTTPS rom some hard-coded file names
 /// @see https://docs.rs/openssl/0.10.26/openssl/ssl/index.html
+#[allow(dead_code)]
 fn ssl() -> Res<SslAcceptorBuilder> {
     let mut acceptor = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
 
@@ -24,7 +24,6 @@ fn ssl() -> Res<SslAcceptorBuilder> {
 
     Ok(acceptor)
 }
-
 
 #[tokio::main]
 pub async fn main() -> Res<()> {

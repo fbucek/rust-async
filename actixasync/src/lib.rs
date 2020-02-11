@@ -5,7 +5,6 @@ extern crate log;
 
 type ResultSend<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync + 'static>>;
 
-
 #[derive(Debug)]
 pub enum Message {
     RunCheck,
@@ -24,7 +23,10 @@ impl ServiceController {
 
     pub async fn run(&mut self) -> ResultSend<()> {
         loop {
-            let message = self.receiver.recv().await
+            let message = self
+                .receiver
+                .recv()
+                .await
                 .expect("ServiceController: Not possible to receive message");
             // let message = receiver.lock().unwrap().recv().await.unwrap();
             trace!("ServiceController: message received {:?}", &message);
