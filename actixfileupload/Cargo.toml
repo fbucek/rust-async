@@ -1,0 +1,22 @@
+[package]
+name = "actixfileupload"
+version = "0.3.0"
+authors = ["Bevan Hunt <bevan@bevanhunt.com>"]
+edition = "2018"
+license = "MIT"
+description = "Simple file uploader in Actix Web with Async/Await"
+keywords = ["actix", "actix-web", "multipart"]
+repository = "https://github.com/actix/examples"
+readme = "README.md"
+
+[dependencies]
+# Loggings
+env_logger = "0.7.1"
+log = "0.4.8"
+
+# Server
+futures = "0.3.4"
+actix-multipart = "0.2.0"
+actix-web = "2.0.0"
+actix-rt = "1.0.0"
+async-std = "1.5.0"

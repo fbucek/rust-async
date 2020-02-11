@@ -3,6 +3,7 @@
 members = [
     "actixasync",
     "actixcomplex",
+    "actixfileupload",
     "actixssl",
     "async-std",
     "hyper",
