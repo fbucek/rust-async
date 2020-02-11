@@ -1,5 +1,5 @@
 [package]
-name = "hyper"
+name = "hyperserver"
 version = "0.1.0"
 authors = [" <fbucek@invloop.cz>"]
 edition = "2018"

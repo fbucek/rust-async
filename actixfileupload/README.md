@@ -8,7 +8,7 @@
 
 ```bash
 echo test > test.txt
-curl -i -X POST -H "Content-Type: multipart/form-data" -F "data=@test.txt" http://localhost:3000/
+curl -i -X POST -H "Content-Type: multipart/form-data" -F "data=@test.txt" http://localhost:3000/api/v1/log/upload
 ```
 
 ## Result
