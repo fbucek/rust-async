@@ -2,7 +2,8 @@
 
 members = [
     "actixasync",
-    "actixcomplex",
+    "actixcomplex/backend",
+    # "actixcomplex/frontend", TODO: implement front end in yaw
     "actixfileupload",
     "actixssl",
     "async-std",
