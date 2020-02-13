@@ -1,6 +1,5 @@
 use std::env;
 
-
 /// Return correct path to certificat and private_key
 pub fn ssl_certificates() -> Result<(String, String), std::io::Error> {
     // Enabled SSL

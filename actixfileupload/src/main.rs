@@ -1,5 +1,5 @@
 use actix_multipart::Multipart;
-use actix_web::{middleware, get, post, App, Error, HttpResponse, HttpServer};
+use actix_web::{get, middleware, post, App, Error, HttpResponse, HttpServer};
 use async_std::prelude::*;
 use futures::StreamExt;
 
@@ -48,7 +48,10 @@ fn index() -> HttpResponse {
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actixfileupload=trace,actix_server=info,actix_web=info");
+    std::env::set_var(
+        "RUST_LOG",
+        "actixfileupload=trace,actix_server=info,actix_web=info",
+    );
     async_std::fs::create_dir_all("./tmp").await?;
 
     env_logger::init();
@@ -58,7 +61,8 @@ async fn main() -> std::io::Result<()> {
     info!("Starting web server: {}", &ip);
 
     HttpServer::new(|| {
-        App::new().wrap(middleware::Logger::default())
+        App::new()
+            .wrap(middleware::Logger::default())
             .service(index)
             .service(upload_file)
     })

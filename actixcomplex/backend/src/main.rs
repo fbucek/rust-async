@@ -1,7 +1,7 @@
 use actix_web::{App, HttpServer};
 use futures::lock::Mutex;
-use std::sync::Arc;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use std::sync::Arc;
 
 use std::*;
 
