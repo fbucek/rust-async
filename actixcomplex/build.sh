@@ -15,5 +15,5 @@ mkdir -p backend/static
 cp ${CARGO_TARGET_DIR}/deploy/frontend.* $CURRENT/backend/static/
 
 
-cd $CURRENT/backend/
-cargo run
+cd $CURRENT/..
+cargo run --bin actixcomplex

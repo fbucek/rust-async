@@ -1,4 +1,4 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, http, web, HttpResponse, Responder};
 use actix_web_httpauth::{extractors::basic::BasicAuth, middleware::HttpAuthentication};
 
 use super::validator;
@@ -7,6 +7,7 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
     let auth = HttpAuthentication::basic(validator::auth_validator);
 
     cfg.service(index)
+        .service(yew)
         .service(index_id_name)
         .service(password)
         .service(web::scope("/public").service(public_test))
@@ -23,6 +24,13 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
 #[get("/")]
 async fn index() -> &'static str {
     "Hello World!"
+}
+
+#[get("/yew")]
+async fn yew() -> Result<actix_http::Response, actix_web::Error> {
+    Ok(HttpResponse::build(http::StatusCode::OK)
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../../static/frontend.html")))
 }
 
 #[get("/{id}/{name}/index.html")]
