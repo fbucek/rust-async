@@ -9,7 +9,10 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
     cfg.service(index)
         .service(yew)
         .service(index_id_name)
-        .service(actix_files::Files::new("/", "./actixcomplex/backend/static/"))
+        .service(actix_files::Files::new(
+            "/",
+            "./actixcomplex/backend/static/",
+        ))
         .service(password)
         .service(web::scope("/public").service(public_test))
         .service(

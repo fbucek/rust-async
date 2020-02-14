@@ -10,7 +10,7 @@ use yew::services::storage::Area;
 use yew::services::{DialogService, StorageService};
 use yew::{html, Component, ComponentLink, Html, InputData, Renderable, ShouldRender};
 
-const KEY: &'static str = "yew.crm.database";
+const KEY: &str = "yew.crm.database";
 
 #[derive(Serialize, Deserialize)]
 struct Database {
@@ -196,26 +196,26 @@ impl Client {
     fn view_first_name_input(&self, link: &ComponentLink<Model>) -> Html {
         html! {
             <input class="new-client firstname"
-                   placeholder="First name"
-                   value=&self.first_name
-                   oninput=link.callback(|e: InputData| Msg::UpdateFirstName(e.value)) />
+                placeholder="First name"
+                value=&self.first_name
+                oninput=link.callback(|e: InputData| Msg::UpdateFirstName(e.value)) />
         }
     }
 
     fn view_last_name_input(&self, link: &ComponentLink<Model>) -> Html {
         html! {
             <input class="new-client lastname"
-                   placeholder="Last name"
-                   value=&self.last_name
-                   oninput=link.callback(|e: InputData| Msg::UpdateLastName(e.value)) />
+                placeholder="Last name"
+                value=&self.last_name
+                oninput=link.callback(|e: InputData| Msg::UpdateLastName(e.value)) />
         }
     }
     fn view_description_textarea(&self, link: &ComponentLink<Model>) -> Html {
         html! {
             <textarea class=("new-client", "description")
-               placeholder="Description"
-               value=&self.description
-               oninput=link.callback(|e: InputData| Msg::UpdateDescription(e.value)) />
+                placeholder="Description"
+                value=&self.description
+                oninput=link.callback(|e: InputData| Msg::UpdateDescription(e.value)) />
         }
     }
 }

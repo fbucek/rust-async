@@ -1,4 +1,4 @@
-use actix_web::{App, HttpServer, middleware};
+use actix_web::{middleware, App, HttpServer};
 use futures::lock::Mutex;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use std::sync::Arc;
