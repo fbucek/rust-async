@@ -1,19 +1,19 @@
 //! Basic http authentification
-//! 
+//!
 //! ```rust
 //! use actix_web::{App, get, HttpServer};
 //! use actix_web_httpauth::middleware::HttpAuthentication;
-//! 
+//!
 //! use actixcomplex::webserver;
-//! 
+//!
 //! #[get("/")]
 //! async fn index() -> &'static str {
 //!     "Hello World!"
 //! }
-//! 
+//!
 //! #[actix_rt::main]
 //! async fn main() -> std::io::Result<()> {
-//! 
+//!
 //!     HttpServer::new(move || {
 //!        let auth = HttpAuthentication::basic(webserver::validator::auth_validator);
 //!        App::new()
@@ -25,10 +25,8 @@
 //!
 //!     Ok(())
 //! }
-//! 
+//!
 //! ```
-
-
 
 use actix_web::{dev, Error};
 use actix_web_httpauth::extractors::basic::BasicAuth;

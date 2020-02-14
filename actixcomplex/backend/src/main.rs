@@ -1,7 +1,7 @@
-use actix_web::{App, HttpServer};
+use actix_web::{middleware, App, HttpServer};
 use futures::lock::Mutex;
-use std::sync::Arc;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use std::sync::Arc;
 
 use std::*;
 
@@ -14,7 +14,7 @@ use actixcomplex::webserver;
 // #[tokio::main]
 #[actix_rt::main]
 async fn main() -> std::result::Result<(), std::io::Error> {
-    std::env::set_var("RUST_LOG", "debug,actixcomplex=trace");
+    std::env::set_var("RUST_LOG", "debug,h2=warn,actixcomplex=trace");
     env_logger::init();
 
     // Enabled SSL
@@ -54,6 +54,7 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     // async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server_future = HttpServer::new(move || {
         App::new()
+            .wrap(middleware::Compress::default())
             .configure(webserver::handlers_api::config)
             .configure(webserver::handlers_www::config)
             .data(Arc::clone(&sender))

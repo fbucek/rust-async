@@ -1,4 +1,4 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, http, web, HttpResponse, Responder};
 use actix_web_httpauth::{extractors::basic::BasicAuth, middleware::HttpAuthentication};
 
 use super::validator;
@@ -7,22 +7,43 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
     let auth = HttpAuthentication::basic(validator::auth_validator);
 
     cfg.service(index)
-        .service(index_id_name)
-        .service(password)
-        .service(web::scope("/public").service(public_test))
-        .service(
-            web::scope("/private")
-                // .data(Config::default().realm("Restricted area"))
-                .wrap(auth)
-                .service(private_test), // .default_service(
-                                        //     web::route().to(|| HttpResponse::Unauthorized().body("Not correct password or username")),
-                                        // )
-        );
+    .service(index_id_name)
+    // .service(
+    //     web::resource("/static/frontend.wasm")
+    //         .route(web::get().to(|| {
+    //             let file = actix_files::NamedFile::open("actixcomplex/backend/static/frontend.wasm");
+    //             Ok(file)
+    //                 // .header("content-encoding", "gzip")
+    //                 // .content_encoding(http::header::ContentEncoding::Identity)
+    //                 // .body(file)
+    //         }
+    //     )
+    // )
+    .service(password)
+    .service(web::scope("/public").service(public_test))
+    .service(
+        web::scope("/private")
+        // .data(Config::default().realm("Restricted area"))
+        .wrap(auth)
+        .service(private_test), // .default_service(
+            //     web::route().to(|| HttpResponse::Unauthorized().body("Not correct password or username")),
+            // )
+        )
+        // This must be last
+        .service(yew)
+        .service(actix_files::Files::new("/","./actixcomplex/backend/static/").index_file("/yew"));
 }
 
 #[get("/")]
 async fn index() -> &'static str {
     "Hello World!"
+}
+
+#[get("/yew")]
+async fn yew() -> Result<actix_http::Response, actix_web::Error> {
+    Ok(HttpResponse::build(http::StatusCode::OK)
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../../static/frontend.html")))
 }
 
 #[get("/{id}/{name}/index.html")]
@@ -36,7 +57,7 @@ async fn password(
     info: web::Path<(u32, String)>,
     // @see https://docs.rs/actix-web/2.0.0/actix_web/trait.Responder.html
     // @see https://github.com/actix/actix-web/blob/6c9f9fff735023005a99bb3d17d3359bb46339c0/src/responder.rs#L106
-// ) -> impl Responder {
+    // ) -> impl Responder {
 ) -> Result<actix_http::Response, actix_web::Error> {
     trace!("First checking credentials");
     match validator::check_credentials(auth) {

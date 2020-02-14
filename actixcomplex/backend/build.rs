@@ -1,14 +1,12 @@
-use std::path;
 use std::env;
 use std::fs;
+use std::path;
 
 use std::io::prelude::*;
-
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 pub fn main() -> Result<()> {
-
     // Prepare path
     // let out_dir = env::var("PWD")?;
     // let pkg_name = env::var("CARGO_PKG_NAME")?;
