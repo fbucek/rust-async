@@ -7,22 +7,31 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
     let auth = HttpAuthentication::basic(validator::auth_validator);
 
     cfg.service(index)
+    .service(index_id_name)
+    // .service(
+    //     web::resource("/static/frontend.wasm")
+    //         .route(web::get().to(|| {
+    //             let file = actix_files::NamedFile::open("actixcomplex/backend/static/frontend.wasm");
+    //             Ok(file)
+    //                 // .header("content-encoding", "gzip")
+    //                 // .content_encoding(http::header::ContentEncoding::Identity)
+    //                 // .body(file)
+    //         }
+    //     )
+    // )
+    .service(password)
+    .service(web::scope("/public").service(public_test))
+    .service(
+        web::scope("/private")
+        // .data(Config::default().realm("Restricted area"))
+        .wrap(auth)
+        .service(private_test), // .default_service(
+            //     web::route().to(|| HttpResponse::Unauthorized().body("Not correct password or username")),
+            // )
+        )
+        // This must be last
         .service(yew)
-        .service(index_id_name)
-        .service(actix_files::Files::new(
-            "/",
-            "./actixcomplex/backend/static/",
-        ))
-        .service(password)
-        .service(web::scope("/public").service(public_test))
-        .service(
-            web::scope("/private")
-                // .data(Config::default().realm("Restricted area"))
-                .wrap(auth)
-                .service(private_test), // .default_service(
-                                        //     web::route().to(|| HttpResponse::Unauthorized().body("Not correct password or username")),
-                                        // )
-        );
+        .service(actix_files::Files::new("/","./actixcomplex/backend/static/").index_file("/yew"));
 }
 
 #[get("/")]
