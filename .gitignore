@@ -3,3 +3,7 @@
 **/keys/**
 /tmp
 Cargo.lock
+
+# actixcomplex/frontend
+**/static/frontend.js
+**/static/frontend.wasm

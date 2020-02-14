@@ -14,3 +14,20 @@ members = [
     "parser",
     "tokio-async",
 ]
+
+# Optimized for size
+# release: 514.6
+# optimized: 
+
+#[cfg(target_arch = "wasm32")]
+# [profile.'cfg(target_arch = "wasm32")'.release]
+# [profile.'cfg(target_arch = "wasm32")'.release]
+
+# [profile.dev.package.hyper]
+# opt-level = 3
+
+[profile.release]
+panic = 'abort'
+codegen-units = 1 
+opt-level = 'z' 
+lto = true 
