@@ -5,5 +5,5 @@
 Cargo.lock
 
 # actixcomplex/frontend
-**/static/frontend.js
-**/static/frontend.wasm
+**/static/frontendyew.js
+**/static/frontendyew.wasm

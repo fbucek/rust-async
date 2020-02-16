@@ -35,15 +35,19 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
 }
 
 #[get("/")]
-async fn index() -> &'static str {
-    "Hello World!"
+async fn index() ->  Result<actix_http::Response, actix_web::Error> {
+    Ok(HttpResponse::Ok().body(
+    "<a href='/yew'>yew</a><br>
+    <a href='/api/run'>api run</a><br>
+    <a href='password/41/filip'>password 41 filip</a><br>
+    <a href='/private/test'>private test</a>"))
 }
 
 #[get("/yew")]
 async fn yew() -> Result<actix_http::Response, actix_web::Error> {
     Ok(HttpResponse::build(http::StatusCode::OK)
         .content_type("text/html; charset=utf-8")
-        .body(include_str!("../../static/frontend.html")))
+        .body(include_str!("../../static/frontendyew.html")))
 }
 
 #[get("/{id}/{name}/index.html")]

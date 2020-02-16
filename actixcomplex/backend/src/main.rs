@@ -48,6 +48,7 @@ async fn main() -> std::result::Result<(), std::io::Error> {
     });
 
     info!("Starting web server");
+    info!("https://localhost:8088/");
     info!("https://localhost:8088/api/run");
     info!("https://localhost:8088/private/test");
     info!("https://localhost:8088/password/41/filip");
