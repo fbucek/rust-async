@@ -3,7 +3,7 @@
 members = [
     "actixasync",
     "actixcomplex/backend",
-    "actixcomplex/frontend",
+    "actixcomplex/frontendyew",
     "actixfileupload",
     "actixssl",
     "async-std",

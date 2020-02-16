@@ -149,30 +149,30 @@ impl Component for Model {
     fn view(&self) -> Html {
         match self.scene {
             Scene::ClientsList => html! {
-                <div class="crm">
+                <div class="section">
                     <div class="clients">
                         { for self.database.clients.iter().map(Renderable::render) }
                     </div>
-                    <button onclick=self.link.callback(|_| Msg::SwitchTo(Scene::NewClientForm(Client::empty())))>{ "Add New" }</button>
-                    <button onclick=self.link.callback(|_| Msg::SwitchTo(Scene::Settings))>{ "Settings" }</button>
+                    <button class="button is-small" onclick=self.link.callback(|_| Msg::SwitchTo(Scene::NewClientForm(Client::empty())))>{ "Add New" }</button>
+                    <button class="button is-small" onclick=self.link.callback(|_| Msg::SwitchTo(Scene::Settings))>{ "Settings" }</button>
                 </div>
             },
             Scene::NewClientForm(ref client) => html! {
-                <div class="crm">
+                <div class="section">
                     <div class="names">
                         { client.view_first_name_input(&self.link) }
                         { client.view_last_name_input(&self.link) }
                         { client.view_description_textarea(&self.link) }
                     </div>
-                    <button disabled=client.first_name.is_empty() || client.last_name.is_empty()
+                    <button class="button is-small" disabled=client.first_name.is_empty() || client.last_name.is_empty()
                             onclick=self.link.callback(|_| Msg::AddNew)>{ "Add New" }</button>
-                    <button onclick=self.link.callback(|_| Msg::SwitchTo(Scene::ClientsList))>{ "Go Back" }</button>
+                    <button class="button is-small" onclick=self.link.callback(|_| Msg::SwitchTo(Scene::ClientsList))>{ "Go Back" }</button>
                 </div>
             },
             Scene::Settings => html! {
-                <div>
-                    <button onclick=self.link.callback(|_| Msg::Clear)>{ "Clear Database" }</button>
-                    <button onclick=self.link.callback(|_| Msg::SwitchTo(Scene::ClientsList))>{ "Go Back" }</button>
+                <div class="section">
+                    <button class="button is-small" onclick=self.link.callback(|_| Msg::Clear)>{ "Clear Database" }</button>
+                    <button class="button is-small" onclick=self.link.callback(|_| Msg::SwitchTo(Scene::ClientsList))>{ "Go Back" }</button>
                 </div>
             },
         }
@@ -195,7 +195,7 @@ impl Renderable for Client {
 impl Client {
     fn view_first_name_input(&self, link: &ComponentLink<Model>) -> Html {
         html! {
-            <input class="new-client firstname"
+            <input class="input new-client firstname"
                 placeholder="First name"
                 value=&self.first_name
                 oninput=link.callback(|e: InputData| Msg::UpdateFirstName(e.value)) />
@@ -204,7 +204,7 @@ impl Client {
 
     fn view_last_name_input(&self, link: &ComponentLink<Model>) -> Html {
         html! {
-            <input class="new-client lastname"
+            <input class="input new-client lastname"
                 placeholder="Last name"
                 value=&self.last_name
                 oninput=link.callback(|e: InputData| Msg::UpdateLastName(e.value)) />
@@ -212,7 +212,7 @@ impl Client {
     }
     fn view_description_textarea(&self, link: &ComponentLink<Model>) -> Html {
         html! {
-            <textarea class=("new-client", "description")
+            <textarea class=("textarea", "new-client", "description")
                 placeholder="Description"
                 value=&self.description
                 oninput=link.callback(|e: InputData| Msg::UpdateDescription(e.value)) />
