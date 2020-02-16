@@ -3,6 +3,13 @@ use actix_web_httpauth::{extractors::basic::BasicAuth, middleware::HttpAuthentic
 
 use super::validator;
 
+
+static HTML_LINKS: &'static str = "<a href='/yew'>yew</a><br>
+<a href='/api/run'>api run</a><br>
+<a href='password/41/filip'>password 41 filip</a><br>
+<a href='/private/test'>private test</a>";
+
+
 pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
     let auth = HttpAuthentication::basic(validator::auth_validator);
 
@@ -36,11 +43,7 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
 
 #[get("/")]
 async fn index() ->  Result<actix_http::Response, actix_web::Error> {
-    Ok(HttpResponse::Ok().body(
-    "<a href='/yew'>yew</a><br>
-    <a href='/api/run'>api run</a><br>
-    <a href='password/41/filip'>password 41 filip</a><br>
-    <a href='/private/test'>private test</a>"))
+    Ok(HttpResponse::Ok().body(HTML_LINKS))
 }
 
 #[get("/yew")]
@@ -100,8 +103,8 @@ mod tests {
         let srv = actix_web::test::start(|| actix_web::App::new().configure(config));
 
         let vec = vec![
-            ("/", StatusCode::OK, "Hello World!"),
-            ("", StatusCode::OK, "Hello World!"),
+            ("/", StatusCode::OK, HTML_LINKS),
+            ("", StatusCode::OK, HTML_LINKS),
             ("/notfound", StatusCode::NOT_FOUND, ""),
             (
                 "/34/filip/index.html",
