@@ -3,7 +3,6 @@
 members = [
     "actixasync",
     "actixcomplex/backend",
-    "actixcomplex/frontendyew",
     "actixfileupload",
     "actixssl",
     "async-std",
@@ -13,6 +12,10 @@ members = [
     "warpssl",
     "parser",
     "tokio-async",
+]
+
+exclude = [
+    "actixcomplex/frontendyew"
 ]
 
 # Optimized for size
@@ -25,9 +28,3 @@ members = [
 
 # [profile.dev.package.hyper]
 # opt-level = 3
-
-[profile.release]
-panic = 'abort'
-codegen-units = 1 
-opt-level = 'z' 
-lto = true 

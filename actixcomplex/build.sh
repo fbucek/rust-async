@@ -26,4 +26,4 @@ wasm-opt -Oz -o ${SRCDIR}/backend/static/frontendyew.wasm ${CARGO_TARGET_DIR}/de
 # mv cd ${SRCDIR}/frontendyew/backend/static/frontendyew.wasm.gz cd ${SRCDIR}/frontendyew/backend/static/frontendyew.wasm
 
 cd ${SRCDIR}/..
-cargo run --bin actixcomplex
+cargo run --bin actixcomplex # --release
