@@ -7,8 +7,8 @@ async fn main() {
 
     warp::serve(routes)
         .tls()
-        .cert_path("keys/warp-localhost.crt")
-        .key_path("keys/warp-localhost.key")
+        .cert_path("ssl-keys/rustasync.crt")
+        .key_path("ssl-keys/rustasync.key")
         .run(([127, 0, 0, 1], 3030))
         .await;
 }
