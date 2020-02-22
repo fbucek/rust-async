@@ -41,7 +41,7 @@ async fn call_wrapper(http: reqwest::Client) -> Result<impl warp::Reply, warp::R
 }
 
 async fn call_site(http: reqwest::Client) -> Result<String, MyError> {
-    let url: String = "https://rust-lang.org/".into();
+    let url: String = "https://api.github.com/users/octocat/orgs".into();
     let resp = http
         .get(&url)
         .send()

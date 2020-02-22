@@ -1,6 +1,8 @@
 use warp::{Filter, http};
 use warp::http::header::{HeaderMap, HeaderValue};
-use futures::stream::Stream;
+
+#[macro_use]
+extern crate log;
 
 use futures::TryStreamExt;
 //use futures_util::stream::Stream;
@@ -33,6 +35,7 @@ use futures::TryStreamExt;
 //         )
 // }
 
+
 // // @see https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177
 // fn proxy(
 //     client: hyper::Client,
@@ -44,35 +47,87 @@ use futures::TryStreamExt;
 //         .and(with_client(client))
 //         .and_then(handlers::proxy_request)
 // }
+mod filters {
+    //use hyper::Client;
+    use super::handlers;
+    use warp::Filter;
 
-async fn proxy_request(
-    url: url::Url,
-    method: http::Method,
-    headers: HeaderMap,
-    body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
-    // body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
-    client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
-) -> Result<impl warp::Reply, warp::Rejection> {
-    let body = body.map_ok(|mut buf| {
-        buf.to_bytes()
-    });
-    let mut request = hyper::Request::builder()
-        .uri(url.as_str())
-        .method(method)
-        .body(hyper::Body::wrap_stream(body))
-        .unwrap();
+    /// @see https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177
+    pub fn proxy(
+        client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
+    ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        
+        let http_client = warp::any().map(move || client.clone());
 
-    *request.headers_mut() = headers;
-    let response = client.request(request).await;
-
-    Ok(response.unwrap())
+        warp::any()
+            .and(warp::path::full())
+            .and(warp::method())
+            .and(warp::header::headers_cloned())
+            .and(warp::body::stream())
+            .and(http_client)
+            .and_then(handlers::proxy_request)
+    }
 }
+
+
+mod handlers {
+    use warp::http::header::HeaderMap;
+    use futures::stream::Stream;
+    use futures::TryStreamExt;
+
+    #[derive(Debug)]
+    struct HyperClientError;
+
+    impl warp::reject::Reject for HyperClientError {}
+
+    pub async fn proxy_request(
+        path: warp::path::FullPath,
+        method: http::Method,
+        headers: HeaderMap,
+        body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
+        // body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
+        client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let body = body.map_ok(|mut buf| {
+            buf.to_bytes()
+        });
+        let url = path.as_str();
+
+        debug!("url: {}", &url);
+
+        let mut request = hyper::Request::builder()
+            .uri(url)
+            .method(method)
+            .body(hyper::Body::wrap_stream(body))
+            .unwrap();
+
+        *request.headers_mut() = headers;
+        let response = client.request(request).await;
+
+        match response {
+            Ok(response) => Ok(response),
+            Err(_) => {
+                Err(warp::reject::custom(HyperClientError))
+            },
+        }
+        // Ok(response.unwrap())
+    }
+}
+
+
 
 #[tokio::main]
 async fn main() {
+    std::env::set_var("RUST_LOG", "debug");
+    env_logger::init();
     // Match any request and return hello world!
-    let routes = warp::any().map(|| "Hello, World!");
+    // let routes = warp::any().map(|| "Hello, World!");
     // let routes = warp::any().and_then(proxy_request);
+
+    let https = hyper_rustls::HttpsConnector::new();
+    let client = hyper::Client::builder().build::<_, hyper::Body>(https);
+//    let client = hyper::Client::new();
+    let routes = filters::proxy(client.clone());
 
     warp::serve(routes)
         .tls()
