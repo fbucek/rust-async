@@ -11,6 +11,7 @@ members = [
     "hyperssl",
     "warp",
     "warpssl",
+    "warpsslproxy",
     "parser",
     "tokio-async",
 ]
