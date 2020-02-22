@@ -1,52 +1,8 @@
-use warp::{Filter, http};
-use warp::http::header::{HeaderMap, HeaderValue};
+use warp::Filter;
 
 #[macro_use]
 extern crate log;
 
-use futures::TryStreamExt;
-//use futures_util::stream::Stream;
-// use hyper::HttpClient;
-
-
-// @see https://github.com/seanmonstar/warp/issues/319#issue-525659230
-
-
-// fn extract_request(
-// ) -> impl Filter<Extract = (http::Request<warp::body::BodyStream>,), Error = warp::Rejection> + Copy
-// {
-//     warp::method()
-//         .and(warp::path::full())
-//         .and(warp::headers::headers_cloned())
-//         .and(warp::body::stream())
-//         .map(
-//             |method: http::Method,
-//             path: warp::path::FullPath,
-//             headers: http::HeaderMap,
-//             body: warp::body::BodyStream| {
-//                 let mut req = http::Request::builder()
-//                     .method(method)
-//                     .uri(path.as_str())
-//                     .body(body)
-//                     .expect("request builder");
-//                 *req.headers_mut() = headers;
-//                 req * req.method_mut() = method;
-//             },
-//         )
-// }
-
-
-// // @see https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177
-// fn proxy(
-//     client: hyper::Client,
-// ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-//     path_and_query()
-//         .and(warp::method())
-//         .and(header::headers_cloned())
-//         .and(warp::body::stream())
-//         .and(with_client(client))
-//         .and_then(handlers::proxy_request)
-// }
 mod filters {
     //use hyper::Client;
     use super::handlers;
@@ -91,7 +47,7 @@ mod handlers {
         let body = body.map_ok(|mut buf| {
             buf.to_bytes()
         });
-        let url = path.as_str();
+        let url = format!("https://api.github.com{}", path.as_str());
 
         debug!("url: {}", &url);
 
@@ -110,26 +66,32 @@ mod handlers {
                 Err(warp::reject::custom(HyperClientError))
             },
         }
-        // Ok(response.unwrap())
     }
 }
-
 
 
 #[tokio::main]
 async fn main() {
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
-    // Match any request and return hello world!
-    // let routes = warp::any().map(|| "Hello, World!");
-    // let routes = warp::any().and_then(proxy_request);
 
     let https = hyper_rustls::HttpsConnector::new();
     let client = hyper::Client::builder().build::<_, hyper::Body>(https);
-//    let client = hyper::Client::new();
-    let routes = filters::proxy(client.clone());
 
-    warp::serve(routes)
+    let http_client = warp::any().map(move || client.clone());
+
+    let route1 = warp::any()
+        .and(warp::path::full())
+        .and(warp::method())
+        .and(warp::header::headers_cloned())
+        .and(warp::body::stream())
+        .and(http_client)
+        .and_then(handlers::proxy_request);
+
+
+    // let routes = filters::proxy(http_client.clone());
+
+    warp::serve(route1)
         .tls()
         .cert_path("ssl-keys/rustasync.crt")
         .key_path("ssl-keys/rustasync.key")
