@@ -33,10 +33,9 @@ use futures::TryStreamExt;
 //         )
 // }
 
-
-// @see https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177
+// // @see https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177
 // fn proxy(
-//     client: HttpClient,
+//     client: hyper::Client,
 // ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
 //     path_and_query()
 //         .and(warp::method())
@@ -73,7 +72,7 @@ async fn proxy_request(
 async fn main() {
     // Match any request and return hello world!
     let routes = warp::any().map(|| "Hello, World!");
-    //let routes = warp::any().map(proxy_request);
+    // let routes = warp::any().and_then(proxy_request);
 
     warp::serve(routes)
         .tls()
