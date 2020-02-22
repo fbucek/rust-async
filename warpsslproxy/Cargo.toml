@@ -4,22 +4,39 @@ version = "0.1.0"
 authors = ["Filip Bucek <fbucek@invloop.cz>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-# [lib]
-# name = "lib"
-# path = "src/lib.rs"
+[[bin]]
+name = "warpsslproxy1"
+path = "src/main.rs"
+
+[[bin]]
+name = "warpsslproxy2"
+path = "src/main2.rs"
 
 
 [dependencies]
 # Loggings
 env_logger = "0.7.1"
+pretty_env_logger = "0.4.0"
 log = "0.4.8"
 # Command line application
 # clap = "2.33.0"
-ctrlc = "3.1.3"
+ctrlc = "3.1.4"
 
 
 warp = { version = "0.2.1", features = ["tls"] }
+hyper = "0.13.2"
+hyper-rustls = "0.19.1"
 tokio = { version = "0.2.11", features = ["full"] }
 
-pretty_env_logger = "0.4.0"
+# main1.rs and main2.rs
+futures = "0.3.4"
+
+# main1.rs
+url = "2.1.1"
+http = "0.2.0"
+bytes = "0.5.4"
+
+
+# main2.rs
+reqwest = "0.10.2"
+futures-util = "0.3.4"
