@@ -5,6 +5,7 @@ members = [
     "actixcomplex/backend",
     "actixfileupload",
     "actixssl",
+    "actixsslproxy",
     "async-std",
     "hyper",
     "hyperssl",

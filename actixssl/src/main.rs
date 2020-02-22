@@ -23,8 +23,8 @@ async fn index(_req: HttpRequest) -> impl Responder {
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    let certificate = "actixssl/keys/actix-localhost.crt";
-    let private_key = "actixssl/keys/actix-localhost.key";
+    let certificate = "ssl-keys/rustasync.crt";
+    let private_key = "ssl-keys/rustasync.key";
 
     let cur_dir = std::env::current_dir().expect("not possible to get current dir");
     println!("cur_dir: {}", &cur_dir.to_str().unwrap());

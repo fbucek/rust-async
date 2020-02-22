@@ -62,6 +62,23 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug executable 'actixsslproxy'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=actixsslproxy",
+                ],
+                "filter": {
+                    "name": "actixsslproxy",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug unit tests in executable 'asyncserver'",
             "cargo": {
                 "args": [
