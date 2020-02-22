@@ -21,3 +21,10 @@ curl --insecure https://localhost:8090/users/octocat/orgs
 
 # info "AWS monitorsdk proxy -> api.github.com"
 # curl http://ec2-3-120-98-176.eu-central-1.compute.amazonaws.com/users/octocat/orgs
+
+
+
+
+
+# curl https://gitlab.com/gitlab-org/gitlab-foss/issues/62077
+# curl https://localhost:8090/gitlab-org/gitlab-foss/issues/62077
