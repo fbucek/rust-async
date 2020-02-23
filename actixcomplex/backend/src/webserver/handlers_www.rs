@@ -3,7 +3,7 @@ use actix_web_httpauth::{extractors::basic::BasicAuth, middleware::HttpAuthentic
 
 use super::validator;
 
-static HTML_LINKS: &'static str = "<a href='/yew'>yew</a><br>
+static HTML_LINKS: &str = "<a href='/yew'>yew</a><br>
 <a href='/api/run'>api run</a><br>
 <a href='password/41/filip'>password 41 filip</a><br>
 <a href='/private/test'>private test</a>";

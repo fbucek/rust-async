@@ -1,0 +1,35 @@
+[package]
+name = "warpsslproxy"
+version = "0.1.0"
+authors = ["Filip Bucek <fbucek@invloop.cz>"]
+edition = "2018"
+
+[[bin]]
+name = "warpsslproxyhyper1"
+path = "src/mainhyper1.rs"
+
+[[bin]]
+name = "warpsslproxyhyper2"
+path = "src/mainhyper2.rs"
+
+[[bin]]
+name = "warpsslproxyreqwest"
+path = "src/mainreqwest.rs"
+
+
+[dependencies]
+# Loggings
+env_logger = "0.7.1"
+log = "0.4.8"
+chrono = "0.4.10"
+lazy_static = "1.4.0"
+
+warp = { version = "0.2.1", features = ["tls"] }
+hyper = "0.13.2"
+tokio = { version = "0.2.11", features = ["rt-threaded"] }
+futures = "0.3.4"
+
+# warp-hyper client
+hyper-rustls = "0.19.1"
+# warp-reqwest client
+reqwest = { version = "0.10.2", features = ["stream", "gzip"] }

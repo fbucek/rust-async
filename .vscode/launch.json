@@ -62,6 +62,40 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug executable 'warpsslproxy1'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=warpsslproxy1",
+                ],
+                "filter": {
+                    "name": "warpsslproxy1",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'warpsslproxyhyper1'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=warpsslproxyhyper1",
+                ],
+                "filter": {
+                    "name": "warpsslproxyhyper1",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug executable 'actixsslproxy'",
             "cargo": {
                 "args": [
