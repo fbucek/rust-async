@@ -22,6 +22,7 @@ path = "src/mainreqwest.rs"
 env_logger = "0.7.1"
 pretty_env_logger = "0.4.0"
 log = "0.4.8"
+chrono = "0.4.10"
 # Command line application
 # clap = "2.33.0"
 ctrlc = "3.1.4"
@@ -42,5 +43,5 @@ bytes = "0.5.4"
 
 
 # main2.rs
-reqwest = "0.10.2"
+reqwest = { version = "0.10.2", features = ["stream", "gzip"] }
 futures-util = "0.3.4"

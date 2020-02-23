@@ -34,19 +34,23 @@ pub async fn handler_proxy(
         .body(hyper::Body::wrap_stream(body))
         .unwrap();
 
+        
     *request.headers_mut() = headers;
+    trace!("resp: {:?}", request);
+    
+    // Get data from server
     let response = client.request(request).await;
-
+    
     debug!("client finished");
 
     match response {
+        // Return response data
         Ok(response) => Ok(response),
         Err(_) => {
             Err(warp::reject::custom(HyperClientError))
         },
     }
 }
-
 
 #[tokio::main]
 async fn main() {
