@@ -1,48 +1,49 @@
+use warp::http::header::HeaderMap;
+use futures::stream::Stream;
+use futures::TryStreamExt; // body.map_ok(|mut buf| 
 use warp::Filter;
 
 #[macro_use]
 extern crate log;
 
-mod handlers {
-    use warp::http::header::HeaderMap;
-    use futures::stream::Stream;
-    use futures::TryStreamExt;
+#[derive(Debug)]
+struct HyperClientError;
 
-    #[derive(Debug)]
-    struct HyperClientError;
+impl warp::reject::Reject for HyperClientError {}
 
-    impl warp::reject::Reject for HyperClientError {}
 
-    pub async fn proxy_request(
-        path: warp::path::FullPath,
-        method: http::Method,
-        headers: HeaderMap,
-        body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
-        // body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
-        client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
-    ) -> Result<impl warp::Reply, warp::Rejection> {
-        let body = body.map_ok(|mut buf| {
-            buf.to_bytes()
-        });
-        let url = format!("https://api.github.com{}", path.as_str());
+pub async fn handler_proxy(
+    path: warp::path::FullPath, 
+    method: http::Method,
+    headers: HeaderMap,
+    body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
+    // body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
+    client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let body = body.map_ok(|mut buf| {
+        buf.to_bytes()
+    });
+    let url = format!("https://api.github.com{}", path.as_str());
 
-        debug!("url: {}", &url);
+    debug!("url: {}", &url);
+    debug!("method: {:?}", &method);
 
-        let mut request = hyper::Request::builder()
-            .uri(url)
-            .method(method)
-            .body(hyper::Body::wrap_stream(body))
-            .unwrap();
+    let mut request = hyper::Request::builder()
+        .uri(url)
+        .method(method)
+        .body(hyper::Body::wrap_stream(body))
+        .unwrap();
 
-        *request.headers_mut() = headers;
-        let response = client.request(request).await;
+    *request.headers_mut() = headers;
+    let response = client.request(request).await;
 
-        match response {
-            Ok(response) => Ok(response),
-            Err(_) => {
-                Err(warp::reject::custom(HyperClientError))
-            },
-        }
+    debug!("client finished");
+
+    match response {
+        Ok(response) => Ok(response),
+        Err(_) => {
+            Err(warp::reject::custom(HyperClientError))
+        },
     }
 }
 
@@ -58,12 +59,12 @@ async fn main() {
     let http_client = warp::any().map(move || client.clone());
 
     let routes = warp::any()
-        .and(warp::path::full())
-        .and(warp::method())
-        .and(warp::header::headers_cloned())
-        .and(warp::body::stream())
-        .and(http_client)
-        .and_then(handlers::proxy_request);
+        .and(warp::path::full()) // path: /users/octocat/orgs
+        .and(warp::method())   // GET, POST
+        .and(warp::header::headers_cloned()) // headers
+        .and(warp::body::stream()) // body
+        .and(http_client) // hyper::Client
+        .and_then(handler_proxy);
 
     warp::serve(routes)
         .tls()
