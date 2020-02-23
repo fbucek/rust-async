@@ -10,7 +10,6 @@ mod filters {
     pub fn proxy(
         client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
     ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        
         let http_client = warp::any().map(move || client.clone());
 
         warp::any()
@@ -23,11 +22,10 @@ mod filters {
     }
 }
 
-
 mod handlers {
-    use warp::http::header::HeaderMap;
     use futures::stream::Stream;
     use futures::TryStreamExt;
+    use warp::http::header::HeaderMap;
 
     #[derive(Debug)]
     struct HyperClientError;
@@ -42,9 +40,7 @@ mod handlers {
         // body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
         client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        let body = body.map_ok(|mut buf| {
-            buf.to_bytes()
-        });
+        let body = body.map_ok(|mut buf| buf.to_bytes());
         let url = format!("https://api.github.com{}", path.as_str());
 
         debug!("url: {}", &url);
@@ -60,9 +56,7 @@ mod handlers {
 
         match response {
             Ok(response) => Ok(response),
-            Err(_) => {
-                Err(warp::reject::custom(HyperClientError))
-            },
+            Err(_) => Err(warp::reject::custom(HyperClientError)),
         }
     }
 }

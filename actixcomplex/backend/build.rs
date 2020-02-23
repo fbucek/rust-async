@@ -1,9 +1,3 @@
-use std::env;
-use std::fs;
-use std::path;
-
-use std::io::prelude::*;
-
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 pub fn main() -> Result<()> {
