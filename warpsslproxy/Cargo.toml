@@ -5,8 +5,12 @@ authors = ["Filip Bucek <fbucek@invloop.cz>"]
 edition = "2018"
 
 [[bin]]
-name = "warpsslproxy1"
-path = "src/main.rs"
+name = "warpsslproxyhyper1"
+path = "src/mainhyper1.rs"
+
+[[bin]]
+name = "warpsslproxyhyper2"
+path = "src/mainhyper2.rs"
 
 [[bin]]
 name = "warpsslproxyreqwest"

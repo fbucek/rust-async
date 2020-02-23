@@ -3,29 +3,6 @@ use warp::Filter;
 #[macro_use]
 extern crate log;
 
-mod filters {
-    //use hyper::Client;
-    use super::handlers;
-    use warp::Filter;
-
-    /// @see https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177
-    pub fn proxy(
-        client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
-    ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        
-        let http_client = warp::any().map(move || client.clone());
-
-        warp::any()
-            .and(warp::path::full())
-            .and(warp::method())
-            .and(warp::header::headers_cloned())
-            .and(warp::body::stream())
-            .and(http_client)
-            .and_then(handlers::proxy_request)
-    }
-}
-
-
 mod handlers {
     use warp::http::header::HeaderMap;
     use futures::stream::Stream;
@@ -72,7 +49,7 @@ mod handlers {
 
 #[tokio::main]
 async fn main() {
-    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_LOG", "warpsslproxyhyper1=debug");
     env_logger::init();
 
     let https = hyper_rustls::HttpsConnector::new();
@@ -80,7 +57,7 @@ async fn main() {
 
     let http_client = warp::any().map(move || client.clone());
 
-    let route1 = warp::any()
+    let routes = warp::any()
         .and(warp::path::full())
         .and(warp::method())
         .and(warp::header::headers_cloned())
@@ -88,10 +65,7 @@ async fn main() {
         .and(http_client)
         .and_then(handlers::proxy_request);
 
-
-    // let routes = filters::proxy(http_client.clone());
-
-    warp::serve(route1)
+    warp::serve(routes)
         .tls()
         .cert_path("ssl-keys/rustasync.crt")
         .key_path("ssl-keys/rustasync.key")
