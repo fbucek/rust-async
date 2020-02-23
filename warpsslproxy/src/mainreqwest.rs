@@ -25,7 +25,7 @@ impl From<reqwest::Error> for MyError {
 
 #[tokio::main]
 async fn main() {
-    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_LOG", "warpsslproxyreqwest=debug");
     // @see https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html
     env_logger::Builder::from_default_env()
         .format(|buf, record| {
@@ -46,15 +46,17 @@ async fn main() {
     let http_client = reqwest::Client::new();
     let http_client = warp::any().map(move || http_client.clone());
 
-    let call_route = warp::path::path("call")
+    let routes = warp::any()
         .and(warp::path::full()) // path: /users/octocat/orgs
         .and(warp::method())   // GET, POST
         .and(warp::header::headers_cloned()) // headers
         .and(warp::body::stream()) // body
         .and(http_client.clone())
-        .and_then(call_site);
+        .and_then(handler_proxy);
 
-    warp::serve(call_route)        
+    info!("Starting server: https://localhost:3030");
+
+    warp::serve(routes)        
         .tls()
         .cert_path("ssl-keys/rustasync.crt")
         .key_path("ssl-keys/rustasync.key")
@@ -63,10 +65,10 @@ async fn main() {
 
 // /// Wrap the actual function so we only have to call reject::custom once
 // async fn call_wrapper(http: reqwest::Client) -> Result<impl warp::Reply, warp::Rejection> {
-//     call_site(http).map_err(warp::reject::custom).await
+//     handler_proxy(http).map_err(warp::reject::custom).await
 // }
 
-async fn call_site(
+async fn handler_proxy(
     path: warp::path::FullPath, 
     method: http::Method,
     headers: HeaderMap,
@@ -93,17 +95,18 @@ async fn call_site(
 
     match resp {
         Ok(resp) => {
-            let text: String = resp.text().await.unwrap();
+            // Prepare response with header
+            let headers = resp.headers().clone();
+            let body: String = resp.text().await.unwrap();
+            let mut response = warp::http::Response::builder()
+                .body(body).unwrap();
 
-            Ok(text)
+            *response.headers_mut() = headers;
+
+            Ok(response)
         },
         Err(_) => {
             Err(warp::reject::custom(HyperClientError))
         },
     }    
-    
-    //debug!("response: {:?}", &resp.status());
-
-    //let body = &resp.text().await?;
-    
 }

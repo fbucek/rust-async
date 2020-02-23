@@ -17,7 +17,6 @@ pub async fn handler_proxy(
     method: http::Method,
     headers: HeaderMap,
     body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
-    // body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
     client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let body = body.map_ok(|mut buf| {
