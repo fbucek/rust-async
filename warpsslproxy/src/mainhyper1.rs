@@ -3,8 +3,28 @@ use futures::TryStreamExt; // body.map_ok(|mut buf|
 use warp::http::header::HeaderMap;
 use warp::Filter;
 
+use std::collections::HashMap;
+
 #[macro_use]
 extern crate log;
+
+lazy_static::lazy_static! {
+    static ref ENDPOINTS: HashMap<&'static str, &'static str> = {
+        let mut endpoints = HashMap::new();
+        endpoints.insert("/v1/tablet/events", "calendar.ipsumlorem.net");
+        endpoints.insert("/login/password","loremipsum.ipsumlorem.net");
+        endpoints.insert("/api/v1/structure/rooms","loremipsum.ipsumlorem.net");
+        endpoints.insert("/api/v2/support_reports","loremipsum.ipsumlorem.net");
+
+        // Gitlab
+        endpoints.insert("/gitlab-org/gitlab-foss/issues/62077","gitlab.com");
+        // GitHub
+        endpoints.insert("/users/octocat/orgs","api.github.com");
+
+        endpoints
+    };
+}
+
 
 #[derive(Debug)]
 struct HyperClientError;
@@ -18,11 +38,20 @@ pub async fn handler_proxy(
     body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
     client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let body = body.map_ok(|mut buf| buf.to_bytes());
-    let url = format!("https://api.github.com{}", path.as_str());
+    // Get host based on endpoint
+    let host = match ENDPOINTS.get(&path.as_str()) {
+        Some(host) => host,
+        None => {
+            return Err(warp::reject::custom(HyperClientError))
+        }
+    };
 
-    debug!("url: {}", &url);
-    debug!("method: {:?}", &method);
+    let url = format!("https://{}{}", &host, path.as_str());
+
+    // Map stream from buf to bytes
+    let body = body.map_ok(|mut buf| buf.to_bytes());
+
+    debug!("{:?} {}", &method, &url);
 
     let mut request = hyper::Request::builder()
         .uri(url)
@@ -47,7 +76,7 @@ pub async fn handler_proxy(
 
 #[tokio::main]
 async fn main() {
-    std::env::set_var("RUST_LOG", "warpsslproxyhyper1=debug");
+    std::env::set_var("RUST_LOG", "warpsslproxyhyper1=trace");
     env_logger::init();
 
     let https = hyper_rustls::HttpsConnector::new();
