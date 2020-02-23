@@ -20,18 +20,14 @@ path = "src/mainreqwest.rs"
 [dependencies]
 # Loggings
 env_logger = "0.7.1"
-pretty_env_logger = "0.4.0"
 log = "0.4.8"
 chrono = "0.4.10"
-# Command line application
-# clap = "2.33.0"
-ctrlc = "3.1.4"
-
+lazy_static = "1.4.0"
 
 warp = { version = "0.2.1", features = ["tls"] }
 hyper = "0.13.2"
 hyper-rustls = "0.19.1"
-tokio = { version = "0.2.11", features = ["full"] }
+tokio = { version = "0.2.11", features = ["rt-threaded"] }
 
 # main1.rs and main2.rs
 futures = "0.3.4"
