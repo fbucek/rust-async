@@ -34,7 +34,7 @@ mod handlers {
 
     pub async fn proxy_request(
         path: warp::path::FullPath,
-        method: http::Method,
+        method: warp::http::Method,
         headers: HeaderMap,
         body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
         // body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,

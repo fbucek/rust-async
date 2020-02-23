@@ -26,18 +26,10 @@ lazy_static = "1.4.0"
 
 warp = { version = "0.2.1", features = ["tls"] }
 hyper = "0.13.2"
-hyper-rustls = "0.19.1"
 tokio = { version = "0.2.11", features = ["rt-threaded"] }
-
-# main1.rs and main2.rs
 futures = "0.3.4"
 
-# main1.rs
-url = "2.1.1"
-http = "0.2.0"
-bytes = "0.5.4"
-
-
-# main2.rs
+# warp-hyper client
+hyper-rustls = "0.19.1"
+# warp-reqwest client
 reqwest = { version = "0.10.2", features = ["stream", "gzip"] }
-futures-util = "0.3.4"

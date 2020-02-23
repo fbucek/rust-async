@@ -13,7 +13,7 @@ impl warp::reject::Reject for HyperClientError {}
 
 pub async fn handler_proxy(
     path: warp::path::FullPath,
-    method: http::Method,
+    method: warp::http::Method,
     headers: HeaderMap,
     body: impl Stream<Item = Result<impl hyper::body::Buf, warp::Error>> + Send + Sync + 'static,
     client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,

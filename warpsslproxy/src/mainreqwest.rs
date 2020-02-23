@@ -72,7 +72,7 @@ async fn main() {
 
 async fn handler_proxy(
     path: warp::path::FullPath,
-    method: http::Method,
+    method: warp::http::Method,
     headers: HeaderMap,
     body: impl futures::stream::Stream<Item = Result<impl hyper::body::Buf, warp::Error>>
         + Send
