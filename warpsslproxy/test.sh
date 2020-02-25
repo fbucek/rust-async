@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
 
-# ################
-# Output funcitons
-# ################
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
 function info () {
-    echo -e "[${BLUE} $@ ${NC}]"
+    echo -e "[\033[0;34m $@ \033[0m]"
 }
 
+SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd $SRCDIR
 
 # info "direct curl -> api.github.com"
 # curl https://api.github.com/users/octocat/orgs
