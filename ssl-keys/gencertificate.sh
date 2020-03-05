@@ -20,9 +20,10 @@ sudo security delete-certificate -c $NAME
 sudo security delete-certificate -c localhost
 sudo security remove-trusted-cert -d $NAME
 
-info "Creating certificates"
-openssl req -new -extensions EXT -config rustasync.config -x509 -out $NAME.crt -keyout $NAME.key
-
+if [ ! -z $1 ] && [[ "$1" = "generate" ]];then 
+    info "Creating certificates"
+    openssl req -new -extensions EXT -config rustasync.config -x509 -out $NAME.crt -keyout $NAME.key
+fi
 
 info "Installing $NAME.crt to system keychain"
 sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $NAME.crt
