@@ -8,8 +8,21 @@ use std::sync::Arc;
 use crate::controller;
 
 pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
-    cfg.service(api_run).service(increment).service(decrement);
+    cfg.service(api_get_json).service(api_run).service(increment).service(decrement);
 }
+
+#[get("/api/get_json")]
+async fn api_get_json(
+) -> Result<HttpResponse, ActixError> {
+    let data = r#"
+        {
+            "first_name": "John",
+            "last_name": "Doe",
+            "description": "Normal user"
+        }"#;
+    Ok(HttpResponse::Ok().body(data))
+}
+
 
 #[get("/api/run")]
 async fn api_run(

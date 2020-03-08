@@ -30,9 +30,14 @@ wasm-bindgen --target web --no-typescript --out-dir $OUTDIR --out-name frontendy
 
 info Optitimization
 #`cargo install wasm-gc`
-#  5 │ actixcomplex/backend/static/frontendyew_gc.wasm        │ File │ 354.2 KB │ 1 min ago 
-#  6 │ actixcomplex/backend/static/frontendyew_orig.wasm      │ File │ 354.2 KB │ 1 min ago #
-#  4 │ actixcomplex/backend/static/frontendyew_bg_gc_opt.wasm │ File │ 277.8 KB │ 4 mins ago 
+# ───┬───────────────────────────────────────────────────┬──────┬──────────┬─────────────
+#  # │ name                                              │ type │ size     │ modified 
+# ───┼───────────────────────────────────────────────────┼──────┼──────────┼─────────────
+#  0 │ actixcomplex/backend/static/frontendyew.html      │ File │    509 B │ 1 hour ago 
+#  1 │ actixcomplex/backend/static/frontendyew.js        │ File │  19.3 KB │ 15 secs ago 
+#  2 │ actixcomplex/backend/static/frontendyew_bg.wasm   │ File │ 277.8 KB │ 15 secs ago 
+#  3 │ actixcomplex/backend/static/frontendyew_orig.wasm │ File │ 354.2 KB │ 15 secs ago 
+# ───┴───────────────────────────────────────────────────┴──────┴──────────┴─────────────
 cd ${SRCDIR}/backend/static/
 mv frontendyew_bg.wasm frontendyew_orig.wasm
 # wasm-gc frontendyew_orig.wasm frontendyew_gc.wasm

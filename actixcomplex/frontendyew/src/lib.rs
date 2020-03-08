@@ -1,20 +1,29 @@
-#![recursion_limit = "128"]
+#![recursion_limit = "256"]
 
 #[macro_use]
 extern crate serde_derive;
 
 mod markdown;
 
-use yew::format::Json;
+use anyhow::Error;
+use yew::format::{Json, Nothing};
 use yew::services::storage::Area;
-use yew::services::{DialogService, StorageService};
+use yew::services::{DialogService, StorageService, ConsoleService};
 use yew::{html, Component, ComponentLink, Html, InputData, Renderable, ShouldRender};
+
+use yew::services::fetch::{FetchService, FetchTask, Request, Response};
 
 const KEY: &str = "yew.crm.database";
 
 #[derive(Serialize, Deserialize)]
 struct Database {
     clients: Vec<Client>,
+}
+
+#[derive(Debug)]
+pub enum Format {
+    Json,
+    Toml,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -46,8 +55,35 @@ pub struct Model {
     storage: StorageService,
     dialog: DialogService,
     database: Database,
+    console: ConsoleService,
     scene: Scene,
+    fetching: bool,
+    ft: Option<FetchTask>,
+    fetch_service: FetchService,
 }
+
+impl Model {
+    fn fetch_json(&mut self, binary: bool) -> yew::services::fetch::FetchTask {
+        let callback = self.link.callback(
+            move |response: Response<Json<Result<Client, Error>>>| {
+                let (meta, Json(data)) = response.into_parts();
+                println!("META: {:?}, {:?}", meta, data);
+                if meta.status.is_success() {
+                    Msg::FetchReady(data)
+                } else {
+                    Msg::Ignore // FIXME: Handle this error accordingly.
+                }
+            },
+        );
+        let request = Request::get("/api/get_json").body(Nothing).unwrap();
+        if binary {
+            self.fetch_service.fetch_binary(request, callback).unwrap()
+        } else {
+            self.fetch_service.fetch(request, callback).unwrap()
+        }
+    }
+}
+
 
 #[derive(Debug)]
 pub enum Msg {
@@ -56,6 +92,9 @@ pub enum Msg {
     UpdateFirstName(String),
     UpdateLastName(String),
     UpdateDescription(String),
+    FetchReady(Result<Client, Error>),
+    FetchData(Format, bool),
+    Ignore,
     Clear,
 }
 
@@ -74,7 +113,11 @@ impl Component for Model {
             storage,
             dialog: DialogService::new(),
             database,
+            console: ConsoleService::new(),
+            fetching: false,
+            ft: None,
             scene: Scene::ClientsList,
+            fetch_service:FetchService::new(),
         }
     }
 
@@ -82,17 +125,28 @@ impl Component for Model {
         let mut new_scene = None;
         match self.scene {
             Scene::ClientsList => match msg {
+                Msg::FetchData(format, binary) => {
+                    self.fetching = true;
+                    let task = self.fetch_json(binary);
+                    self.ft = Some(task);
+                }
                 Msg::SwitchTo(Scene::NewClientForm(client)) => {
                     new_scene = Some(Scene::NewClientForm(client));
                 }
                 Msg::SwitchTo(Scene::Settings) => {
                     new_scene = Some(Scene::Settings);
                 }
+                Msg::FetchReady(response) => {
+                    self.fetching = false;
+                    let data = response.expect("Not possible to get data");
+                    self.database.clients.push(data);
+                    self.storage.store(KEY, Json(&self.database));
+                    //self.data = response.map(|data| data.value).ok();
+                }
                 unexpected => {
-                    panic!(
-                        "Unexpected message when clients list shown: {:?}",
+                    self.console.log(format!("Unexpected message when clients list shown: {:?}",
                         unexpected
-                    );
+                    ).as_str());
                 }
             },
             Scene::NewClientForm(ref mut client) => match msg {
@@ -155,6 +209,9 @@ impl Component for Model {
                     </div>
                     <button class="button is-small" onclick=self.link.callback(|_| Msg::SwitchTo(Scene::NewClientForm(Client::empty())))>{ "Add New" }</button>
                     <button class="button is-small" onclick=self.link.callback(|_| Msg::SwitchTo(Scene::Settings))>{ "Settings" }</button>
+                    <button class="button is-small" onclick=self.link.callback(|_| Msg::FetchData(Format::Json, false))>
+                        { "Fetch Data" }
+                    </button>
                 </div>
             },
             Scene::NewClientForm(ref client) => html! {
