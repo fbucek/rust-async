@@ -1,5 +1,8 @@
 # Async examples
 
+
+[![pipeline status](https://github.com/fbucek/rust-async/workflows/build/badge.svg)](https://github.com/fbucek/rust-async/)
+
 Commands
 
 - Doc: `cargo doc --no-deps --document-private-items --open`
