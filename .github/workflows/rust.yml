@@ -23,10 +23,12 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    # Preinstalled software 
+    # @see 
+    env:
+      OPENSSL_DIR: "C:/Program Files/OpenSSL/bin/"
     steps:
     - uses: actions/checkout@v1
-    - name: "Prepare OpenSSL"
-      run: vcpkg install openssl:x64-windows
     - name: Build
       run: cargo build --verbose
     - name: Run tests
