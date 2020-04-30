@@ -3,36 +3,19 @@ name: build
 on: [push]
 
 jobs:
-  # build-linux: 
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v1
-  #   - name: Build
-  #     run: cargo build --verbose
-  #   - name: Run tests
-  #     run: cargo test --verbose
-
-  # build-macos:
-  #   runs-on: macos-latest
-  #   steps:
-  #   - uses: actions/checkout@v1
-  #   - name: Build
-  #     run: cargo build --verbose
-  #   - name: Run tests
-  #     run: cargo test --verbose
-
-  build-windows:
-    runs-on: windows-latest
-    # Preinstalled software 
-    # @see https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
-    # env:
-    #   OPENSSL_DIR: "C:/Program Files/OpenSSL/bin/"
+  build-linux: 
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    # @see https://github.com/actions/virtual-environments/issues/371
-    - name: Install openssl
-      run: vcpkg install openssl:x64-windows
-      #run: choco install openssl  
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
     - name: Build
       run: cargo build --verbose
     - name: Run tests
