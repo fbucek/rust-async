@@ -32,7 +32,6 @@ jobs:
 
   cargo-deny:
     runs-on: ubuntu-latest
-    needs: build
     steps:
     - uses: actions/checkout@v1
     - uses: EmbarkStudios/cargo-deny-action@v0
