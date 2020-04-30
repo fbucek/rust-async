@@ -29,8 +29,10 @@ jobs:
     #   OPENSSL_DIR: "C:/Program Files/OpenSSL/bin/"
     steps:
     - uses: actions/checkout@v1
-    - name: Instlal openssl
-      run: choco install openssl
+    # @see https://github.com/actions/virtual-environments/issues/371
+    - name: Install openssl
+      run: vcpkg install openssl:x64-windows
+      #run: choco install openssl  
     - name: Build
       run: cargo build --verbose
     - name: Run tests
