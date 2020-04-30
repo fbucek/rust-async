@@ -24,11 +24,13 @@ jobs:
   build-windows:
     runs-on: windows-latest
     # Preinstalled software 
-    # @see 
-    env:
-      OPENSSL_DIR: "C:/Program Files/OpenSSL/bin/"
+    # @see https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
+    # env:
+    #   OPENSSL_DIR: "C:/Program Files/OpenSSL/bin/"
     steps:
     - uses: actions/checkout@v1
+    - name: Instlal openssl
+      run: choco install openssl
     - name: Build
       run: cargo build --verbose
     - name: Run tests
