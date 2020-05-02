@@ -4,6 +4,7 @@ members = [
     "actixasync",
     "actixcomplex/backend",
     "actixfileupload",
+    "actix-jwt",
     "actixssl",
     "actixsslproxy",
     "async-std",
