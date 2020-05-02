@@ -6,6 +6,9 @@ jobs:
   build-linux: 
     runs-on: ubuntu-latest
     steps:
+    - name: Install sqlite
+      run: sudo apt-get install libsqlite3-dev
+
     - uses: actions/checkout@v1
     - name: Build
       run: cargo build
