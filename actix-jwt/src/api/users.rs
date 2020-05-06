@@ -1,7 +1,7 @@
-use crate::db::users::InputUser;
+use crate::db::users::*;
+
 use crate::db::{self, Pool};
 use actix_web::{web, Error, HttpResponse};
-use serde::{Deserialize, Serialize};
 
 pub async fn get_users(dbconn: web::Data<Pool>) -> Result<HttpResponse, Error> {
     let conn = dbconn.into_inner();
