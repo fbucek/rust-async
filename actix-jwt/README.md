@@ -4,4 +4,9 @@ Source: [Build an API in Rust with JWT Authentication](https://auth0.com/blog/bu
 
 Sqlite choosed because of easier setup.
 
+## How to run
 
+### Devel 
+
+`cargo watch -x "run --bin actix-jwt"` start server
+`cargo watch -s "./check.sh"` -> will perform checking waiting for server

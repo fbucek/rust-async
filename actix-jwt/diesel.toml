@@ -4,4 +4,4 @@
 # automatically created using `diesel setup`
 
 [print_schema]
-file = "src/schema.rs"
+file = "src/db/schema.rs"
