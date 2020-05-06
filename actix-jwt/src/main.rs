@@ -14,7 +14,6 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug");
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-
     // create db connection pool
     let manager = diesel::r2d2::ConnectionManager::<SqliteConnection>::new(database_url);
     let pool: db::Pool = r2d2::Pool::builder()
@@ -28,7 +27,6 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
-            
             .route("/users", web::get().to(api::users::get_users))
             .route("/users/{id}", web::get().to(api::users::get_user_by_id))
             .route("/users", web::post().to(api::users::add_user))
@@ -38,4 +36,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
