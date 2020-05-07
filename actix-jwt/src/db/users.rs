@@ -5,8 +5,8 @@ use diesel::prelude::*;
 use diesel::dsl::*; //{delete, insert_into};
 use std::sync::Arc;
 
-use crate::db::schema::users::{self, dsl::*};
-use crate::db::Pool;
+use super::schema::users::{self, dsl::*};
+use super::Pool;
 
 use serde::{Deserialize, Serialize};
 
@@ -48,6 +48,7 @@ pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<User, diesel::
 }
 
 pub fn add_single_user(db: Arc<Pool>, item: InputUser) -> Result<User, diesel::result::Error> {
+    log::info!("Adding single user");
     let conn = db.get().unwrap();
     // Struct with user
     let new_user = NewUser {

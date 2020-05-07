@@ -8,15 +8,32 @@ function fail() { FAIL="true"; echo -e "[\033[0;31mFAIL\033[0m] $@"; } # red: [F
 trap 'LASTRES=$?; LAST=$BASH_COMMAND; if [[ LASTRES -ne 0 ]]; then fail "Command: \"$LAST\" exited with exit code: $LASTRES"; elif [ "$FAIL" == "true"  ]; then fail finished with error; else echo -e "[\033[0;32m Finished $@ \033[0m]";fi' EXIT
 SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # this source dir
 
+info "Run integrations tests"
+cargo test --package actixjwt
 
 info "Sleep for until port is open"
 while ! nc -z localhost 8080; do   
     sleep 0.1 # wait for 1/10 of the second before check again
 done
 
+# TODO: remove in favour of intergration tests
 info "Get user"
-curl -X GET 'http://127.0.0.1:8080/users/45'
+curl -X GET 'http://127.0.0.1:8080/users/1'
 
+info "Add user"
+curl -v -X POST 'http://127.0.0.1:8080/users' \
+    -H "Content-Type: application/json" \
+    --data '{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "johndoe@email.com"
+    }'
+
+info "Get user"
+curl -X GET -i 'http://127.0.0.1:8080/users'
+
+info "Delete user"
+curl -X DELETE -i 'http://127.0.0.1:8080/users/1'
 
 
 info "Sign up"

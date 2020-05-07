@@ -1,17 +1,13 @@
-#[macro_use]
-extern crate diesel;
-
 use actix_web::{web, App, HttpServer};
 use diesel::prelude::*;
 
-// TODO: Move to lib crate
-mod api;
-mod db;
+use actixjwt::{db, api};
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
-    std::env::set_var("RUST_LOG", "actix_web=debug");
+    std::env::set_var("RUST_LOG", "actix_jwt=trace, actix_web=debug");
+    env_logger::init();
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     // create db connection pool
