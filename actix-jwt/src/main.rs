@@ -1,7 +1,7 @@
 use actix_web::{web, App, HttpServer};
 use diesel::prelude::*;
 
-use actixjwt::{db, api};
+use actixjwt::{api, db};
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

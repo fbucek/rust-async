@@ -13,7 +13,7 @@ pub async fn get_users(dbconn: web::Data<Pool>) -> Result<HttpResponse, Error> {
         .map_err(|_| HttpResponse::InternalServerError())?)
 }
 
-pub async fn get_user_by_id(    
+pub async fn get_user_by_id(
     db: web::Data<Pool>,
     user_id: web::Path<i32>,
 ) -> Result<HttpResponse, Error> {

@@ -1,8 +1,5 @@
-
 // Database
 extern crate diesel;
-use diesel::prelude::*; // SqliteConneciton
-use diesel::r2d2;
 
 #[macro_use]
 extern crate diesel_migrations;
@@ -12,26 +9,20 @@ extern crate diesel_migrations;
 // tested without any outside setup of the database.
 embed_migrations!("migrations");
 
-
-
 #[cfg(test)]
 mod tests {
-    use super::*;
     use actixjwt::db;
-    use actixjwt::db::schema::users::{self, dsl::*};
-    use actixjwt::api;
-
 
     embed_migrations!("migrations");
 
     #[actix_rt::test]
     async fn test_get_user() {
         let test_db = nafta::sqlite::TestDb::new();
-        let conn = test_db.conn()
+        let conn = test_db
+            .conn()
             .expect("Not possible to get pooled connection");
-        
-        embedded_migrations::run(&conn)
-            .expect("Migration not possible to run");
+
+        embedded_migrations::run(&conn).expect("Migration not possible to run");
 
         let pool = std::sync::Arc::new(test_db.pool);
 
