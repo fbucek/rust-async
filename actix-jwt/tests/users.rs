@@ -6,19 +6,9 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use actix_web::{test, web, App, Error};
-use actix_web::dev::{ServiceResponse};
-
-// use actix_http::http::header::{ContentType, Header, HeaderName, IntoHeaderValue};
-// use actix_http::http::{Error as HttpError, Method, StatusCode, Uri, Version};
-// use actix_http::test::TestRequest as HttpTestRequest;
-// use actix_http::{cookie::Cookie, ws, Extensions, HttpService, Request};
-// use actix_router::{Path, ResourceDef, Url};
-use actix_rt::{time::delay_for, System};
-use actix_service::{
-    map_config, IntoService, IntoServiceFactory, Service, ServiceFactory,
-};
-
+use actix_web::{test, web, App};
+use actix_web::dev::ServiceResponse;
+use actix_service::Service;
 
 // This macro from `diesel_migrations` defines an `embedded_migrations` module
 // containing a function named `run`. This allows the example to be run and
@@ -26,53 +16,35 @@ use actix_service::{
 embed_migrations!("migrations");
 //
 
-struct Resp {
-    status: bool,
-    body: Option<String>,
+struct RespString {
+    status: actix_web::http::StatusCode,
+    body: String,
 }
 
-pub async fn call_service_orig<S, R, B, E>(app: &mut S, req: R) -> S::Response
-where
-    S: Service<Request = R, Response = ServiceResponse<B>, Error = E>,
-    E: std::fmt::Debug,
-{
-    app.call(req).await.unwrap()
-}
 
-pub async fn call_service<S, B, E>(app: &mut S) -> S::Response
+/// Get method to test Actix server
+/// ```ignore
+/// let resp = get(&mut app, "/fake/users/id").await;
+/// assert_eq!(resp.status.as_u16(), 404);
+/// assert_eq!(resp.body, "");
+/// ```
+async fn get<S, B, E>(mut app: &mut S, url: &str) -> RespString
 where
+    B: actix_http::body::MessageBody,
     S: Service<Request = actix_http::Request, Response = ServiceResponse<B>, Error = E>,
     E: std::fmt::Debug,
 {
-    let req = test::TestRequest::get().uri("/users/id").to_request();
-    app.call(req).await.unwrap()
+    let req = test::TestRequest::get().uri(url).to_request();
+    let resp = test::call_service(&mut app, req).await;
+    let status = resp.status().clone();
+    let body = test::read_body(resp).await;
+    let body = String::from_utf8_lossy(&body).to_string();
+
+    RespString {
+        status,
+        body,
+    }
 }
-
-
-// pub async fn get<S, B, E, U>(app: &mut S, url: U) -> Resp
-// where
-// S: Service<Response = ServiceResponse<B>, Error = E>,
-// E: std::fmt::Debug,
-// U: Into<String>,
-// {
-//      // /users/id must pass
-//      let req = test::TestRequest::get().uri("/users/id").to_request();
-//      let resp = test::call_service(&mut app, req).await;
-
-//      assert!(resp.status().is_success());
-//      let body = match resp.response().body().as_ref() {
-//          Some(actix_web::body::Body::Bytes(bytes)) => bytes,
-//          _ => panic!("Response error"),
-//      };
-
-
-//     // Response {
-//     //     status,
-//     //     body,
-//     // }
-// }
-
-
 
 
 mod integrations {
@@ -81,7 +53,7 @@ mod integrations {
     use actixjwt::api;
 
     #[actix_rt::test]
-    async fn test_get_user() -> Result<(), Error> {
+    async fn test_get_user() {
         // TODO addd database test
 
         let test_db = nafta::sqlite::TestDb::new();
@@ -93,27 +65,22 @@ mod integrations {
         let mut app = test::init_service(
             App::new()
                 .data(test_db.pool)
-                .service(web::resource("/users/id").route(web::get().to(api::users::get_users))),
+                .service(web::resource("/users").route(web::get().to(api::users::get_users)))
+                .service(web::resource("/users/{id}").route(web::get().to(api::users::get_user_by_id)))
         )
         .await;
 
+
+        let resp = get(&mut app, "/fake/users/id").await;
+        assert_eq!(resp.status.as_u16(), 404);
+        assert_eq!(resp.body, "");
         
-        // FAIL: /fake/users/id
-        let req = test::TestRequest::get().uri("/fake/users/id").to_request();
-        let resp = test::call_service(&mut app, req).await;
-        assert!(!resp.status().is_success());
+        let resp = get(&mut app, "/users/1").await;
+        assert_eq!(resp.status.as_u16(), 500); // user does not exists
+        assert_eq!(resp.body, "");
 
-        // /users/id must pass
-        let req = test::TestRequest::get().uri("/users/id").to_request();
-        let resp = test::call_service(&mut app, req).await;
-        assert!(resp.status().is_success());
-        let response_body = match resp.response().body().as_ref() {
-            Some(actix_web::body::Body::Bytes(bytes)) => bytes,
-            _ => panic!("Response error"),
-        };
-
-        assert_eq!(response_body, "[]");
-
-        Ok(())
+        let resp = get(&mut app, "/users").await;
+        assert_eq!(resp.status.as_u16(), 200);
+        assert_eq!(resp.body, "[]");
     }
 }
