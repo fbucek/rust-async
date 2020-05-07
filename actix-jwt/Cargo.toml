@@ -39,5 +39,4 @@ serde_json = "1"
 
 [dev-dependencies]
 # Testing
-tempdir = "0.3"
 nafta = { git = "https://github.com/fbucek/nafta" }
