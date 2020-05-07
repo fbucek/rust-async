@@ -1,4 +1,3 @@
-
 // Database
 extern crate diesel;
 // use diesel::prelude::*; // SqliteConneciton
@@ -13,12 +12,10 @@ extern crate diesel_migrations;
 embed_migrations!("migrations");
 //
 
-
 mod integrations {
     //#[cfg_attr(test, macro_use)]
     use super::*;
-    use actix_web::{App, Error, test, web};
-    use actixjwt::db::schema::users::{self, dsl::*};
+    use actix_web::{test, web, App, Error};
     use actixjwt::api;
 
     #[actix_rt::test]
@@ -26,7 +23,9 @@ mod integrations {
         // TODO addd database test
 
         let test_db = nafta::sqlite::TestDb::new();
-        let conn = &test_db.conn().expect("Not possible to get pooled connection");
+        let conn = &test_db
+            .conn()
+            .expect("Not possible to get pooled connection");
         embedded_migrations::run(conn).expect("Migration not possible to run");
 
         let mut app = test::init_service(
