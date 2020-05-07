@@ -19,6 +19,7 @@ actix-service = "1.0"
 alcoholic_jwt = "1.0"
 reqwest = "0.10"
 actix-rt = "1.1"
+actix-http = "1.0"
 
 chrono = { version = "0.4", features = ["serde"] }
 derive_more = "0.99"
@@ -39,4 +40,4 @@ serde_json = "1"
 
 [dev-dependencies]
 # Testing
-nafta = { git = "https://github.com/fbucek/nafta" }
+nafta = "0.1"
