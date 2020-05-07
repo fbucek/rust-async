@@ -23,10 +23,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
-            .route("/users", web::get().to(api::users::get_users))
-            .route("/users/{id}", web::get().to(api::users::get_user_by_id))
-            .route("/users", web::post().to(api::users::add_user))
-            .route("/users/{id}", web::delete().to(api::users::delete_user))
+            .configure(api::users::config_app)
     })
     .bind(url)?
     .run()

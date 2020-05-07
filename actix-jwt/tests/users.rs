@@ -54,8 +54,6 @@ mod integrations {
 
     #[actix_rt::test]
     async fn test_get_user() {
-        // TODO addd database test
-
         let test_db = nafta::sqlite::TestDb::new();
         let conn = &test_db
             .conn()
@@ -65,8 +63,7 @@ mod integrations {
         let mut app = test::init_service(
             App::new()
                 .data(test_db.pool)
-                .service(web::resource("/users").route(web::get().to(api::users::get_users)))
-                .service(web::resource("/users/{id}").route(web::get().to(api::users::get_user_by_id)))
+                .configure(api::users::config_app)
         )
         .await;
 
