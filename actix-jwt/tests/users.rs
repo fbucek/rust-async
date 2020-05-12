@@ -8,7 +8,6 @@ extern crate diesel_migrations;
 
 use actix_web::{test, App};
 
-
 // This macro from `diesel_migrations` defines an `embedded_migrations` module
 // containing a function named `run`. This allows the example to be run and
 // tested without any outside setup of the database.
@@ -31,14 +30,14 @@ mod integrations {
         let mut app = test::init_service(
             App::new()
                 .data(test_db.pool)
-                .configure(api::users::config_app)
+                .configure(api::users::config_app),
         )
         .await;
 
         let resp = testax::get(&mut app, "/fake/users/id").await;
         assert_eq!(resp.status.as_u16(), 404);
         assert_eq!(resp.body, "");
-        
+
         let resp = testax::get(&mut app, "/users/1").await;
         assert_eq!(resp.status.as_u16(), 500); // user does not exists
         assert_eq!(resp.body, "");

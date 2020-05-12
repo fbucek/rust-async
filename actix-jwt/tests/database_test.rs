@@ -49,21 +49,21 @@ mod tests {
 
         // ADD User
         let user = InputUser::new("John", "Doe", "john.doe@apple.com");
-        db::users::add_single_user(pool.clone(), &user)
-            .expect("Not possible to add new user");
+        db::users::add_single_user(pool.clone(), &user).expect("Not possible to add new user");
 
         // GET Users
         let all_user = db::users::get_all_users(pool.clone())
             .expect("Not possible to get all users from database");
         assert_eq!(all_user.len(), 1);
-        let dbuser =all_user.first().unwrap();
+        let dbuser = all_user.first().unwrap();
         assert_eq!(dbuser.first_name, user.first_name);
         assert_eq!(dbuser.last_name, user.last_name);
         assert_eq!(dbuser.email, user.email);
 
         // DELETE User
-        let deleted_count = db::users::delete_single_user(pool.clone(), dbuser.id)
-            .expect(&format!("Not possible to delete user with id: {}", dbuser.id));
+        let deleted_count = db::users::delete_single_user(pool.clone(), dbuser.id).expect(
+            &format!("Not possible to delete user with id: {}", dbuser.id),
+        );
         assert_eq!(deleted_count, 1, "Only one item should be deleted");
 
         // Database must be empty

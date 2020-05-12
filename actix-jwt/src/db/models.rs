@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct User {
     pub id: i32,
@@ -19,8 +18,8 @@ pub struct InputUser {
 }
 
 impl InputUser {
-    pub fn new<FN,LN,E>(first_name: FN, last_name: LN, email: E) -> Self
-    where 
+    pub fn new<FN, LN, E>(first_name: FN, last_name: LN, email: E) -> Self
+    where
         FN: Into<String>,
         LN: Into<String>,
         E: Into<String>,

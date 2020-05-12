@@ -5,9 +5,9 @@ use diesel::prelude::*;
 use diesel::dsl::*; //{delete, insert_into};
 use std::sync::Arc;
 
+use super::models::{InputUser, User};
 use super::schema::users::{self, dsl::*};
 use super::Pool;
-use super::models::{User, InputUser};
 
 #[derive(Insertable, Debug)]
 #[table_name = "users"]

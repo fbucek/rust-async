@@ -1,17 +1,15 @@
-use crate::db::models::{InputUser};
+use crate::db::models::InputUser;
 
 use crate::db::{self, Pool};
 use actix_web::{web, Error, HttpResponse};
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     log::info!("Actix user config");
-    cfg
-        .route("/users", web::get().to(get_users))
+    cfg.route("/users", web::get().to(get_users))
         .route("/users/{id}", web::get().to(get_user_by_id))
         .route("/users", web::post().to(add_user))
         .route("/users/{id}", web::delete().to(delete_user));
 }
-
 
 pub async fn get_users(dbconn: web::Data<Pool>) -> Result<HttpResponse, Error> {
     log::trace!("Getting users");
