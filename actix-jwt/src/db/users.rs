@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::schema::users::{self, dsl::*};
 use super::Pool;
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Queryable)]
 pub struct User {
     pub id: i32,
     pub first_name: String,

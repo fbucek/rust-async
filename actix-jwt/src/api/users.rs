@@ -34,7 +34,9 @@ pub async fn get_user_by_id(
     )
 }
 
-// Handler for POST /users
+/// Handler for POST /users
+///
+/// returns `201` status
 pub async fn add_user(
     db: web::Data<Pool>,
     item: web::Json<InputUser>,
@@ -43,7 +45,7 @@ pub async fn add_user(
     Ok(
         web::block(move || db::users::add_single_user(db.into_inner(), &item.into_inner()))
             .await
-            .map(|user| HttpResponse::Created().json(user))
+            .map(|user| HttpResponse::Created().json(user)) // status 201
             .map_err(|_| HttpResponse::InternalServerError())?,
     )
 }
