@@ -1,4 +1,5 @@
 use actix_web::{error::ResponseError, HttpResponse};
+use std::fmt;
 
 #[derive(Debug)]
 pub enum ServiceError {
@@ -6,6 +7,13 @@ pub enum ServiceError {
     BadRequest(String),
     JwtFetchError,
 }
+
+impl fmt::Display for ServiceError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Service Error")
+    }
+}
+
 
 impl ResponseError for ServiceError {
     fn error_response(&self) -> HttpResponse {
@@ -15,7 +23,7 @@ impl ResponseError for ServiceError {
             }
             ServiceError::BadRequest(ref message) => HttpResponse::BadRequest().json(message),
             ServiceError::JwtFetchError => {
-                HttpReponse::InternalServerError().json("Could not fetch JWKS")
+                HttpResponse::InternalServerError().json("Could not fetch JWKS")
             }
         }
     }
