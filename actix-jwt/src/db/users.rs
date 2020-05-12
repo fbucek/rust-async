@@ -1,13 +1,23 @@
 // Database
 use diesel::prelude::*;
-// use crate::diesel::QueryDsl;
-// use crate::diesel::RunQueryDsl;
-use diesel::dsl::*; //{delete, insert_into};
+
+use diesel::dsl::*; 
 use std::sync::Arc;
 
-use super::models::{InputUser, User};
+use serde::{Deserialize, Serialize};
+
 use super::schema::users::{self, dsl::*};
 use super::Pool;
+
+#[derive(Debug, Serialize, Deserialize, Queryable)]
+pub struct User {
+    pub id: i32,
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub created_at: chrono::NaiveDateTime,
+    pub login_session: Option<String>,
+}
 
 #[derive(Insertable, Debug)]
 #[table_name = "users"]
@@ -17,6 +27,14 @@ pub struct NewUser<'a> {
     pub email: &'a str,
     pub created_at: chrono::NaiveDateTime,
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct InputUser {
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+}
+
 
 pub fn get_all_users(pool: Arc<Pool>) -> Result<Vec<User>, diesel::result::Error> {
     let conn = pool.get().unwrap();

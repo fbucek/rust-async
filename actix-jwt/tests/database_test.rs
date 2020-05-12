@@ -12,7 +12,7 @@ embed_migrations!("migrations");
 #[cfg(test)]
 mod tests {
     use actixjwt::db;
-    use actixjwt::db::models::InputUser;
+    use actixjwt::db::users::InputUser;
 
     embed_migrations!("migrations");
 
@@ -48,7 +48,12 @@ mod tests {
         assert!(all_user.is_empty());
 
         // ADD User
-        let user = InputUser::new("John", "Doe", "john.doe@apple.com");
+        let user = InputUser { 
+            first_name: "John".to_string(),
+            last_name: "Doe".to_string(),
+            email: "john.doe@apple.com".to_string(),
+        };
+
         db::users::add_single_user(pool.clone(), &user).expect("Not possible to add new user");
 
         // GET Users

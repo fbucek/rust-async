@@ -1,6 +1,5 @@
-use crate::db::models::InputUser;
-
 use crate::db::{self, Pool};
+use crate::db::users::InputUser;
 use actix_web::{web, Error, HttpResponse};
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
