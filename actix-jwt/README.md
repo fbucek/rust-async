@@ -8,5 +8,6 @@ Sqlite choosed because of easier setup.
 
 ### Devel 
 
-`cargo watch -x "run --bin actix-jwt"` start server
-`cargo watch -s "./check.sh"` -> will perform checking waiting for server
+- `cd actix-jwt`
+- `cargo watch -x "run --bin actixjwt"` start server
+- `cargo watch -s "./check.sh"` -> will perform checking waiting for server ( run in second terminal )

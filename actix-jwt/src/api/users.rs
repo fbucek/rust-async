@@ -1,4 +1,4 @@
-use crate::db::users::*;
+use crate::db::models::{InputUser};
 
 use crate::db::{self, Pool};
 use actix_web::{web, Error, HttpResponse};
@@ -44,7 +44,7 @@ pub async fn add_user(
 ) -> Result<HttpResponse, Error> {
     log::trace!("Adding user {:?}", &item);
     Ok(
-        web::block(move || db::users::add_single_user(db.into_inner(), item.into_inner()))
+        web::block(move || db::users::add_single_user(db.into_inner(), &item.into_inner()))
             .await
             .map(|user| HttpResponse::Created().json(user))
             .map_err(|_| HttpResponse::InternalServerError())?,
