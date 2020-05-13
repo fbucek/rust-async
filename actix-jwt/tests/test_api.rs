@@ -106,20 +106,22 @@ mod integrations {
             "not": "full_name"
         });
 
-        // BAD REQUEST
+        // BAD REQUEST 
+        // bad JSON
         let resp = testax::post_json(&mut app, &user, "/users").await;
         assert_eq!(resp.status.as_u16(), 400);
         assert_eq!(resp.body, "");
         
-        // INTERNAL SERVER ERROR
+        // INTERNAL SERVER ERROR 
+        // Non existing User
         let resp = testax::get(&mut app, "/users/1").await;
         assert_eq!(resp.status.as_u16(), 500); // user does not exists
         assert_eq!(resp.body, "");
 
         // EMPTY RESPONSE
+        // [] 
         let resp = testax::get(&mut app, "/users").await;
         assert_eq!(resp.status.as_u16(), 200);
-        let dbusers: Vec<User> = serde_json::from_str(&resp.body).unwrap();
-        assert_eq!(dbusers.len(), 0);
+        assert_eq!(resp.body, "[]");
     }
 }
