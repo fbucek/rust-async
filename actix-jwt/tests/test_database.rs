@@ -62,7 +62,6 @@ mod tests {
         assert_eq!(all_user.len(), 1);
         let dbuser = all_user.first().unwrap();
         assert_eq!(dbuser.username, user.username);
-        assert_eq!(dbuser.password, user.password);
         assert_eq!(dbuser.email, user.email);
 
         // DELETE User
@@ -70,6 +69,14 @@ mod tests {
             &format!("Not possible to delete user with id: {}", dbuser.id),
         );
         assert_eq!(deleted_count, 1, "Only one item should be deleted");
+
+        // DELETE non existins user
+        let deleted_count = db::users::delete_single_user(pool.clone(), 1000).expect(
+            &format!("Not possible to delete user with id: {}", dbuser.id),
+        );
+        assert_eq!(deleted_count, 0, "1000 does not exists anything must be deleted");
+
+
 
         // Database must be empty
         let all_user = db::users::get_all_users(pool.clone())

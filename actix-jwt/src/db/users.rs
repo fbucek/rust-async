@@ -10,19 +10,37 @@ use super::schema::users::{self, dsl::*};
 use super::Pool;
 use crate::models::token::UserToken;
 
+/// We literally never want to select `textsearchable_index_col`
+/// so we provide this type and constant to pass to `.select`
+type AllColumns = (
+    id,
+    username,
+    email,
+    login_session,
+);
+
+pub const ALL_COLUMNS: AllColumns = (
+    id,
+    username,
+    email,
+    login_session,
+);
+
+
 #[derive(Debug, PartialEq, Serialize, Deserialize, Queryable)]
 pub struct User {
-    #[serde(skip)] 
+    // #[serde(skip)] 
     pub id: i32,
     pub username: String,
-    #[serde(skip)] 
-    pub password: String,
+    // #[serde(skip)] 
+    // pub password: String,
     // pub first_name: String,
     // pub last_name: String,
     pub email: String,
-    pub created_at: chrono::NaiveDateTime,
+    // pub created_at: chrono::NaiveDateTime,
     pub login_session: String,
 }
+
 
 #[derive(Insertable, Debug)]
 #[table_name = "users"]
@@ -46,12 +64,18 @@ pub struct InputUser {
 
 pub fn get_all_users(pool: Arc<Pool>) -> Result<Vec<User>, diesel::result::Error> {
     let conn = pool.get().unwrap();
-    Ok(users.load::<User>(&conn)?)
+    Ok(users
+        .select(ALL_COLUMNS)
+        .load::<User>(&conn)?
+    )
 }
 
 pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<User, diesel::result::Error> {
     let conn = pool.get().unwrap();
-    users.find(user_id).get_result::<User>(&conn)
+    users
+        .find(user_id)
+        .select(ALL_COLUMNS)
+        .get_result::<User>(&conn)
 }
 
 pub fn add_single_user(db: Arc<Pool>, item: &InputUser) -> Result<User, diesel::result::Error> {
@@ -71,6 +95,7 @@ pub fn add_single_user(db: Arc<Pool>, item: &InputUser) -> Result<User, diesel::
 
     Ok(users
         .order(id.desc())
+        .select(ALL_COLUMNS)
         // .limit(inserted_count as i64)
         .get_result::<User>(&conn)?)
 }
@@ -86,6 +111,7 @@ pub fn is_valid_login_session(db: Arc<Pool>, user_token: &UserToken) -> bool {
     users
         .filter(username.eq(&user_token.user))
         .filter(login_session.eq(&user_token.login_session))
+        .select(ALL_COLUMNS)
         .get_result::<User>(&conn)
         .is_ok()
 }
