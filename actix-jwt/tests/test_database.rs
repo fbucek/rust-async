@@ -49,8 +49,8 @@ mod tests {
 
         // ADD User
         let user = InputUser { 
-            first_name: "John".to_string(),
-            last_name: "Doe".to_string(),
+            username: "johndoe".to_string(),
+            password: "strong xxx".to_string(),
             email: "john.doe@apple.com".to_string(),
         };
 
@@ -61,8 +61,8 @@ mod tests {
             .expect("Not possible to get all users from database");
         assert_eq!(all_user.len(), 1);
         let dbuser = all_user.first().unwrap();
-        assert_eq!(dbuser.first_name, user.first_name);
-        assert_eq!(dbuser.last_name, user.last_name);
+        assert_eq!(dbuser.username, user.username);
+        assert_eq!(dbuser.password, user.password);
         assert_eq!(dbuser.email, user.email);
 
         // DELETE User

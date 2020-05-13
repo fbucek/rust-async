@@ -1,10 +1,10 @@
 table! {
     users (id) {
         id -> Integer,
-        first_name -> Text,
-        last_name -> Text,
+        username -> Text,
+        password -> Text,
         email -> Text,
         created_at -> Timestamp,
-        login_session -> Nullable<Text>,
+        login_session -> Text,
     }
 }

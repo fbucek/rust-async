@@ -11,3 +11,7 @@ Sqlite choosed because of easier setup.
 - `cd actix-jwt`
 - `cargo watch -x "run --bin actixjwt"` start server
 - `cargo watch -s "./check.sh"` -> will perform checking waiting for server ( run in second terminal )
+
+### Secret key
+
+`secret.key` generated using `head -c16 /dev/urandom > secret.key`
