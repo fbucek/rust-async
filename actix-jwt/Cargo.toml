@@ -11,6 +11,7 @@ edition = "2018"
 log = "0.4"
 env_logger = "0.7"
 dotenv = "0.15"
+anyhow = "1.0"
 
 # Web
 actix-web = "2.0"
@@ -22,8 +23,12 @@ actix-rt = "1.1"
 actix-http = "1.0"
 jsonwebtoken = "7.1"
 
+# Crypto 
+rust-argon2 = "0.8"
+
+
 chrono = { version = "0.4", features = ["serde"] }
-derive_more = "0.99"
+# derive_more = "0.99"
 
 # Database 
 diesel = { version = "1.4", features = ["sqlite", "uuidv07", "r2d2", "chrono"] }

@@ -1,15 +1,19 @@
 use crate::db::{self, Pool};
 use crate::db::users::InputUser;
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, get, post, Error, HttpResponse};
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     log::info!("Actix user config");
-    cfg.route("/users", web::get().to(get_users))
+    cfg
+        //.route("/users", web::get().to(get_users))
         .route("/users/{id}", web::get().to(get_user_by_id))
-        .route("/users", web::post().to(add_user))
         .route("/users/{id}", web::delete().to(delete_user));
-}
 
+    cfg.service(add_user)
+        .service(get_users); // ("/users", web::post().to(add_user))
+    }
+
+#[get("/users")]
 pub async fn get_users(dbconn: web::Data<Pool>) -> Result<HttpResponse, Error> {
     log::trace!("Getting users");
     let conn = dbconn.into_inner();
@@ -37,13 +41,14 @@ pub async fn get_user_by_id(
 /// Handler for POST /users
 ///
 /// returns `201` status
+#[post("/users")]
 pub async fn add_user(
     db: web::Data<Pool>,
     item: web::Json<InputUser>,
 ) -> Result<HttpResponse, Error> {
     log::trace!("Adding user {:?}", &item);
     Ok(
-        web::block(move || db::users::add_single_user(db.into_inner(), &item.into_inner()))
+        web::block(move || db::users::signup_user(db.into_inner(), &item.into_inner()))
             .await
             .map(|user| HttpResponse::Created().json(user)) // status 201
             .map_err(|_| HttpResponse::InternalServerError())?,

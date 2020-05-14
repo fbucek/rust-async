@@ -2,7 +2,7 @@
 
 CREATE TABLE users (
     id INTEGER NOT NULL PRIMARY KEY,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE, -- Must be unique
     password TEXT NOT NULL,
     -- first_name TEXT NOT NULL,
     -- last_name TEXT NOT NULL,

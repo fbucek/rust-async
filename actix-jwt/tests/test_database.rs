@@ -17,7 +17,7 @@ mod tests {
     embed_migrations!("migrations");
 
     #[actix_rt::test]
-    async fn test_get_user() {
+    async fn test_init_db_must_be_empty() {
         let test_db = nafta::sqlite::TestDb::new();
         let conn = test_db
             .conn()
@@ -27,9 +27,10 @@ mod tests {
 
         let pool = std::sync::Arc::new(test_db.pool);
 
-        // Test
-        let all_user = db::users::get_all_users(pool);
-        assert!(all_user.is_ok());
+        // Db must be empty
+        let all_user = db::users::get_all_users(pool.clone())
+            .expect("Not possible to get all users from database");
+        assert!(all_user.is_empty());
     }
 
     #[actix_rt::test]
@@ -47,14 +48,14 @@ mod tests {
             .expect("Not possible to get all users from database");
         assert!(all_user.is_empty());
 
-        // ADD User
+        // Signup User
         let user = InputUser { 
             username: "johndoe".to_string(),
             password: "strong xxx".to_string(),
             email: "john.doe@apple.com".to_string(),
         };
 
-        db::users::add_single_user(pool.clone(), &user).expect("Not possible to add new user");
+        db::users::signup_user(pool.clone(), &user).expect("Not possible to add new user");
 
         // GET Users
         let all_user = db::users::get_all_users(pool.clone())
@@ -70,6 +71,9 @@ mod tests {
         );
         assert_eq!(deleted_count, 1, "Only one item should be deleted");
 
+
+
+
         // DELETE non existins user
         let deleted_count = db::users::delete_single_user(pool.clone(), 1000).expect(
             &format!("Not possible to delete user with id: {}", dbuser.id),
@@ -82,5 +86,22 @@ mod tests {
         let all_user = db::users::get_all_users(pool.clone())
             .expect("Not possible to get all users from database");
         assert_eq!(all_user.len(), 0, "Database must be empty");
+    }
+
+
+    #[actix_rt::test]
+    async fn test_auth() {
+        let test_db = nafta::sqlite::TestDb::new();
+        let conn = test_db
+            .conn()
+            .expect("Not possible to get pooled connection");
+
+        embedded_migrations::run(&conn).expect("Migration not possible to run");
+
+        let pool = std::sync::Arc::new(test_db.pool);
+
+        // Test
+        let all_user = db::users::get_all_users(pool);
+        assert!(all_user.is_ok());
     }
 }

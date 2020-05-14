@@ -3,27 +3,30 @@ use diesel::prelude::*;
 
 use diesel::dsl::*; 
 use std::sync::Arc;
+use anyhow::{anyhow, Result};
+
 
 use serde::{Deserialize, Serialize};
 
-use super::schema::users::{self, dsl::*};
+use super::schema::users::{self, dsl};
 use super::Pool;
-use crate::models::token::UserToken;
+use crate::utils::{hash, token::UserToken};
+
 
 /// We literally never want to select `textsearchable_index_col`
 /// so we provide this type and constant to pass to `.select`
 type AllColumns = (
-    id,
-    username,
-    email,
-    login_session,
+    dsl::id,
+    dsl::username,
+    dsl::email,
+    dsl::login_session,
 );
 
 pub const ALL_COLUMNS: AllColumns = (
-    id,
-    username,
-    email,
-    login_session,
+    dsl::id,
+    dsl::username,
+    dsl::email,
+    dsl::login_session,
 );
 
 
@@ -62,56 +65,79 @@ pub struct InputUser {
 }
 
 
-pub fn get_all_users(pool: Arc<Pool>) -> Result<Vec<User>, diesel::result::Error> {
+pub fn get_all_users(pool: Arc<Pool>) -> Result<Vec<User>> {
     let conn = pool.get().unwrap();
-    Ok(users
+    Ok(dsl::users
         .select(ALL_COLUMNS)
         .load::<User>(&conn)?
     )
 }
 
-pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<User, diesel::result::Error> {
+pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<User> {
     let conn = pool.get().unwrap();
-    users
+    Ok(dsl::users
         .find(user_id)
         .select(ALL_COLUMNS)
-        .get_result::<User>(&conn)
-}
-
-pub fn add_single_user(db: Arc<Pool>, item: &InputUser) -> Result<User, diesel::result::Error> {
-    log::info!("Adding single user");
-    let conn = db.get().unwrap();
-    // Struct with user
-    let new_user = NewUser {
-        // first_name: &item.first_name,
-        // last_name: &item.last_name,
-        username: &item.username,
-        password: &item.password,
-        email: &item.email,
-        created_at: chrono::Local::now().naive_local(),
-        login_session: "",
-    };
-    let _inserted_count = insert_into(users).values(&new_user).execute(&conn)?;
-
-    Ok(users
-        .order(id.desc())
-        .select(ALL_COLUMNS)
-        // .limit(inserted_count as i64)
         .get_result::<User>(&conn)?)
 }
 
-pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize, diesel::result::Error> {
+
+pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize> {
     let conn = db.get().unwrap();
-    let count = delete(users.find(user_id)).execute(&conn)?;
+    let count = delete(dsl::users.find(user_id)).execute(&conn)?;
     Ok(count)
+}
+
+
+/// 
+/// ## Steps 
+/// 
+/// 1. Check if `username` exists -> return Error
+/// 2. Create user with hashed passwor
+/// 3. return created user ( TODO: is it necessary? )
+pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<User> {
+    log::info!("Adding single user");
+    let conn = db.get().unwrap();
+
+    if dsl::users
+        .filter(dsl::username.eq(&item.username))
+        .select(ALL_COLUMNS)
+        .get_result::<User>(&conn).is_err() 
+    {
+        info!("Implement adding to sqlite database");
+
+        let hashed_password = hash::argon_hash(item.password.as_bytes())?;
+
+        let new_user = NewUser {
+            // first_name: &item.first_name,
+            // last_name: &item.last_name,
+            username: &item.username,
+            password: &hashed_password,
+            email: &item.email,
+            created_at: chrono::Local::now().naive_local(),
+            login_session: "",
+        };
+        diesel::insert_into(dsl::users).values(&new_user).execute(&conn)?;
+
+
+        Ok(dsl::users
+            .order(dsl::id.desc())
+            .select(ALL_COLUMNS)
+            // .limit(inserted_count as i64)
+            .get_result::<User>(&conn)?)
+    } else {
+        Err(anyhow!("User alread present {}", item.username))
+    }
 }
 
 pub fn is_valid_login_session(db: Arc<Pool>, user_token: &UserToken) -> bool {
     let conn = db.get().unwrap();
-    users
-        .filter(username.eq(&user_token.user))
-        .filter(login_session.eq(&user_token.login_session))
+    dsl::users
+        .filter(dsl::username.eq(&user_token.user))
+        .filter(dsl::login_session.eq(&user_token.login_session))
         .select(ALL_COLUMNS)
         .get_result::<User>(&conn)
         .is_ok()
 }
+
+

@@ -23,6 +23,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
+            .configure(api::auth::config_app)
             .configure(api::users::config_app)
     })
     .bind(url)?
