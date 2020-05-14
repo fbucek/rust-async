@@ -31,7 +31,7 @@ mod api_users {
         let mut app = test::init_service(
             App::new()
                 .data(test_db.pool)
-                .configure(api::users::config_app)
+                .configure(api::users::config_app),
         )
         .await;
 
@@ -68,9 +68,6 @@ mod api_users {
             password: "strong xxx".to_string(),
             email: "johndoe@apple.com".to_string(),
         };
-
-
-
 
         let resp = testax::post_json(&mut app, &user, "/users").await;
         assert_eq!(resp.status.as_u16(), 201);
@@ -109,20 +106,20 @@ mod api_users {
             "not": "full_name"
         });
 
-        // BAD REQUEST 
+        // BAD REQUEST
         // bad JSON
         let resp = testax::post_json(&mut app, &user, "/users").await;
         assert_eq!(resp.status.as_u16(), 400);
         assert_eq!(resp.body, "");
-        
-        // INTERNAL SERVER ERROR 
+
+        // INTERNAL SERVER ERROR
         // Non existing User
         let resp = testax::get(&mut app, "/users/1").await;
         assert_eq!(resp.status.as_u16(), 500); // user does not exists
         assert_eq!(resp.body, "");
 
         // EMPTY RESPONSE
-        // [] 
+        // []
         let resp = testax::get(&mut app, "/users").await;
         assert_eq!(resp.status.as_u16(), 200);
         assert_eq!(resp.body, "[]");

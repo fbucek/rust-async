@@ -49,7 +49,7 @@ mod database {
         assert!(all_user.is_empty());
 
         // Signup User
-        let user = InputUser { 
+        let user = InputUser {
             username: "johndoe".to_string(),
             password: "strong xxx".to_string(),
             email: "john.doe@apple.com".to_string(),
@@ -71,23 +71,21 @@ mod database {
         );
         assert_eq!(deleted_count, 1, "Only one item should be deleted");
 
-
-
-
         // DELETE non existins user
-        let deleted_count = db::users::delete_single_user(pool.clone(), 1000).expect(
-            &format!("Not possible to delete user with id: {}", dbuser.id),
+        let deleted_count = db::users::delete_single_user(pool.clone(), 1000).expect(&format!(
+            "Not possible to delete user with id: {}",
+            dbuser.id
+        ));
+        assert_eq!(
+            deleted_count, 0,
+            "1000 does not exists anything must be deleted"
         );
-        assert_eq!(deleted_count, 0, "1000 does not exists anything must be deleted");
-
-
 
         // Database must be empty
         let all_user = db::users::get_all_users(pool.clone())
             .expect("Not possible to get all users from database");
         assert_eq!(all_user.len(), 0, "Database must be empty");
     }
-
 
     #[actix_rt::test]
     async fn test_auth() {
@@ -101,44 +99,54 @@ mod database {
         let pool = std::sync::Arc::new(test_db.pool);
 
         // Signup User / new user
-        let user = InputUser { 
+        let user = InputUser {
             username: "johndoe".to_string(),
             password: "strong xxx".to_string(),
             email: "john.doe@apple.com".to_string(),
         };
 
-        // Signup 
+        // Signup
         db::users::signup_user(pool.clone(), &user).expect("Not possible to add new user");
         // Second signup must caused error
         assert!(db::users::signup_user(pool.clone(), &user).is_err());
 
         // Login non existing user
-        let login_request: LoginRequest = serde_json::from_str(r#"{"username": "nonexisting", "password": "fake"}"#).unwrap();
+        let login_request: LoginRequest =
+            serde_json::from_str(r#"{"username": "nonexisting", "password": "fake"}"#).unwrap();
         assert!(db::users::login_user(pool.clone(), login_request).is_err());
 
         // Login of existing user
-        let login_request: LoginRequest = serde_json::from_str(r#"{"username": "johndoe", "password": "strong xxx"}"#).unwrap();
-        let user_token = db::users::login_user(pool.clone(), login_request)
-            .expect("Not possible to get login");
-        
+        let login_request: LoginRequest =
+            serde_json::from_str(r#"{"username": "johndoe", "password": "strong xxx"}"#).unwrap();
+        let user_token =
+            db::users::login_user(pool.clone(), login_request).expect("Not possible to get login");
+
         let valid_uuid = user_token.login_session;
         let valid_user = user_token.username;
         // Check validity of UUID
-        uuid::Uuid::parse_str(valid_uuid.as_str())
-            .expect("Not possible to parse UUID");
+        uuid::Uuid::parse_str(valid_uuid.as_str()).expect("Not possible to parse UUID");
 
-        assert!(db::users::is_valid_login_session(pool.clone(), &valid_user, &valid_uuid));
+        assert!(db::users::is_valid_login_session(
+            pool.clone(),
+            &valid_user,
+            &valid_uuid
+        ));
 
         // Not valid UUID must fail
         let invalid_uuid = uuid::Uuid::new_v4().to_simple().to_string();
-        assert!( ! db::users::is_valid_login_session(pool.clone(), &valid_user, &invalid_uuid));
+        assert!(!db::users::is_valid_login_session(
+            pool.clone(),
+            &valid_user,
+            &invalid_uuid
+        ));
 
         // Not valid user but valid UUID must fail
-        assert!( ! db::users::is_valid_login_session(pool.clone(), "johnDoe", &valid_uuid));
+        assert!(!db::users::is_valid_login_session(
+            pool.clone(),
+            "johnDoe",
+            &valid_uuid
+        ));
     }
-
-
-
 
     #[actix_rt::test]
     async fn test_case_sensitivity() {

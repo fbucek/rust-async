@@ -32,7 +32,7 @@ mod api_auth {
             App::new()
                 .data(test_db.pool)
                 .configure(api::users::config_app)
-                .configure(api::auth::config_app)
+                .configure(api::auth::config_app),
         )
         .await;
 
@@ -55,5 +55,4 @@ mod api_auth {
         // TODO:
         // assert_eq!(resp.body, "");
     }
-
 }

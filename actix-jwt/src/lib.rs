@@ -3,8 +3,8 @@ extern crate diesel;
 #[macro_use]
 extern crate log;
 
-extern crate diesel_migrations;
 extern crate argon2;
+extern crate diesel_migrations;
 
 pub mod api;
 pub mod db;

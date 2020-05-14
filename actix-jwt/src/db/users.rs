@@ -1,17 +1,15 @@
 // Database
 use diesel::prelude::*;
 
-use diesel::dsl::*; 
-use std::sync::Arc;
 use anyhow::{anyhow, Result};
-
+use diesel::dsl::*;
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
 use super::schema::users::{self, dsl};
-use super::{Pool, Conn};
+use super::{Conn, Pool};
 use crate::utils::{hash, token::UserToken};
-
 
 /// We literally never want to select `textsearchable_index_col`
 /// so we provide this type and constant to pass to `.select`
@@ -46,13 +44,12 @@ pub struct LoginInfo {
     pub login_session: String,
 }
 
-
 #[derive(Debug, PartialEq, Serialize, Deserialize, Queryable)]
 struct User {
-    #[serde(skip)] 
+    #[serde(skip)]
     pub id: i32,
     pub username: String,
-    #[serde(skip)] 
+    #[serde(skip)]
     pub password: String,
     // pub first_name: String,
     // pub last_name: String,
@@ -60,7 +57,6 @@ struct User {
     pub created_at: chrono::NaiveDateTime,
     pub login_session: String,
 }
-
 
 #[derive(Insertable, Debug)]
 #[table_name = "users"]
@@ -81,7 +77,6 @@ pub struct InputUser {
     pub email: String,
 }
 
-
 #[derive(Debug, PartialEq, Serialize, Deserialize, Queryable)]
 pub struct UserInfo {
     pub id: i32,
@@ -96,8 +91,7 @@ pub fn get_all_users(pool: Arc<Pool>) -> Result<Vec<UserInfo>> {
     // FIXME: exposing hash
     Ok(dsl::users
         .select(USER_INFO_COLUMNS)
-        .load::<UserInfo>(&conn)?
-    )
+        .load::<UserInfo>(&conn)?)
 }
 
 pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<UserInfo> {
@@ -108,16 +102,14 @@ pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<UserInfo> {
         .get_result::<UserInfo>(&conn)?)
 }
 
-
 pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize> {
     let conn = db.get().unwrap();
     let count = delete(dsl::users.find(user_id)).execute(&conn)?;
     Ok(count)
 }
 
-
-/// ## Steps 
-/// 
+/// ## Steps
+///
 /// Signup will use `lowercase` for `username`
 ///
 /// 1. Check if `username` exists -> return Error
@@ -133,7 +125,8 @@ pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
     if dsl::users
         .filter(dsl::username.eq(&item.username))
         // .select(ALL_COLUMNS)
-        .get_result::<User>(&conn).is_err() 
+        .get_result::<User>(&conn)
+        .is_err()
     {
         info!("Implement adding to sqlite database");
 
@@ -146,7 +139,9 @@ pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
             created_at: chrono::Local::now().naive_local(),
             login_session: "",
         };
-        diesel::insert_into(dsl::users).values(&new_user).execute(&conn)?;
+        diesel::insert_into(dsl::users)
+            .values(&new_user)
+            .execute(&conn)?;
 
         // Return last added user
         Ok(dsl::users
@@ -158,22 +153,21 @@ pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
     }
 }
 
-/// ## Steps 
-/// 
+/// ## Steps
+///
 /// 1. Check if `username` exists -> return Error
 /// 2. Create user with hashed passwor
 /// 3. return created user ( TODO: is it necessary? )
 pub fn login_user(db: Arc<Pool>, login: LoginRequest) -> Result<LoginInfo> {
     let conn = db.get().unwrap();
     // let conn = pool.get().unwrap();
-    
+
     // Get user based on LoginRequest
     let user_to_verify = dsl::users
         .filter(dsl::username.eq(&login.username))
         .or_filter(dsl::email.eq(&login.username))
         .get_result::<User>(&conn)?;
 
-    
     // Check if password is not empty
     if user_to_verify.password.is_empty() {
         error!("Users password in database is empty");
@@ -186,7 +180,7 @@ pub fn login_user(db: Arc<Pool>, login: LoginRequest) -> Result<LoginInfo> {
     // Passwords are not empty -> validate hash
     argon2::verify_encoded(&user_to_verify.password, &login.password.as_bytes())?;
 
-    // Generate login session 
+    // Generate login session
     // TODO: return previous session id when used before.
     let session_id = generate_login_uuid();
 
@@ -207,7 +201,6 @@ pub fn logout(user_id: i32, conn: &Conn) -> Result<()> {
 
     update_user_login_session(&user, conn).map(|_| ())
 }
-
 
 pub fn is_valid_login_session(db: Arc<Pool>, user: &str, session_id: &str) -> bool {
     let conn = db.get().unwrap();

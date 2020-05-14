@@ -14,7 +14,6 @@ impl fmt::Display for ServiceError {
     }
 }
 
-
 impl ResponseError for ServiceError {
     fn error_response(&self) -> HttpResponse {
         match self {

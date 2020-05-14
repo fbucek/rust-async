@@ -1,9 +1,6 @@
-use serde::{Serialize, Deserialize};
 use chrono::Utc;
-use jsonwebtoken::{
-    EncodingKey,
-    Header
-};
+use jsonwebtoken::{EncodingKey, Header};
+use serde::{Deserialize, Serialize};
 
 use crate::db::users::LoginInfo;
 
@@ -31,6 +28,11 @@ impl UserToken {
             login_session: login.login_session,
         };
 
-        jsonwebtoken::encode(&Header::default(), &payload, &EncodingKey::from_secret(&KEY)).unwrap()
+        jsonwebtoken::encode(
+            &Header::default(),
+            &payload,
+            &EncodingKey::from_secret(&KEY),
+        )
+        .unwrap()
     }
 }

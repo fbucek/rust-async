@@ -1,13 +1,10 @@
-use crate::db::{self, Pool};
 use crate::db::users::InputUser;
-use actix_web::{web, post, Error, HttpResponse};
+use crate::db::{self, Pool};
+use actix_web::{post, web, Error, HttpResponse};
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     log::info!("Actix user config");
-    cfg.service(
-        web::scope("api/auth")
-            .service(login)
-    );
+    cfg.service(web::scope("api/auth").service(login));
 }
 
 #[post("/signup")]
@@ -21,8 +18,6 @@ pub async fn signup(db: web::Data<Pool>) -> Result<HttpResponse, Error> {
     HttpResponse::Ok().json(user).await
     // HttpResponse::InternalServerError().await
 }
-
-
 
 #[post("/login")]
 pub async fn login(db: web::Data<Pool>) -> Result<HttpResponse, Error> {

@@ -21,7 +21,7 @@ info "Get user"
 curl -X GET 'http://127.0.0.1:8080/users/1'
 
 info "Add user"
-curl -v -X POST 'http://127.0.0.1:8080/users' \
+curl -X POST 'http://127.0.0.1:8080/users' \
     -H "Content-Type: application/json" \
     --data '{
     "first_name": "John",
@@ -30,14 +30,14 @@ curl -v -X POST 'http://127.0.0.1:8080/users' \
     }'
 
 info "Get user"
-curl -X GET -i 'http://127.0.0.1:8080/users'
+curl -X GET 'http://127.0.0.1:8080/users'
 
 info "Delete user"
-curl -X DELETE -i 'http://127.0.0.1:8080/users/1'
+curl -X DELETE 'http://127.0.0.1:8080/users/1'
 
 
 info "Sign up"
-curl -X POST -i 'http://127.0.0.1:8080/api/auth/signup' \
+curl -X POST 'http://127.0.0.1:8080/api/auth/signup' \
     -H "Content-Type: application/json" \
     --data '{
     "username": "user",
