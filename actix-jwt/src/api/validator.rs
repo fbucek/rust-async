@@ -39,7 +39,7 @@ async fn validator(req: ServiceRequest, credentials: BearerAuth) -> Result<Servi
         // .ok_or_else(|| Err(AuthenticationError::from(config).into()))?;
 
 
-    // TODO: Now it is necessary to validate token form bearer authstring
+    // Now it is necessary to validate token form bearer authstring
     match jwt::decode_token(credentials.token()) {
         Ok(token_data) => {
             info!("Decoding token succesfull");

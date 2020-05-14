@@ -23,8 +23,9 @@ actix-rt = "1.1"
 actix-http = "1.0"
 jsonwebtoken = "7.1"
 
-# Crypto 
+# Crypto / Generators 
 rust-argon2 = "0.8"
+uuid = { version = "0.8", features = ["v4"] }
 
 
 chrono = { version = "0.4", features = ["serde"] }

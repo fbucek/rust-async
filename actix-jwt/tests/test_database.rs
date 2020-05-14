@@ -10,7 +10,7 @@ extern crate diesel_migrations;
 embed_migrations!("migrations");
 
 #[cfg(test)]
-mod tests {
+mod database {
     use actixjwt::db;
     use actixjwt::db::users::InputUser;
 
@@ -100,8 +100,16 @@ mod tests {
 
         let pool = std::sync::Arc::new(test_db.pool);
 
-        // Test
-        let all_user = db::users::get_all_users(pool);
-        assert!(all_user.is_ok());
+        // Signup User / new user
+        let user = InputUser { 
+            username: "johndoe".to_string(),
+            password: "strong xxx".to_string(),
+            email: "john.doe@apple.com".to_string(),
+        };
+
+        // Signup 
+        db::users::signup_user(pool.clone(), &user).expect("Not possible to add new user");
+        // Second signup must caused error
+        assert!(db::users::signup_user(pool.clone(), &user).is_err());
     }
 }
