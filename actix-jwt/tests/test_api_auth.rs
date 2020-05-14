@@ -18,7 +18,7 @@ mod api_auth {
     //#[cfg_attr(test, macro_use)]
     use super::*;
     use actixjwt::api;
-    use actixjwt::db::users::{InputUser, User};
+    use actixjwt::db::users::{InputUser, UserInfo};
 
     #[actix_rt::test]
     async fn test_auth() {
@@ -45,7 +45,7 @@ mod api_auth {
         // POST User
         let resp = testax::post_json(&mut app, &user, "/users").await;
         assert_eq!(resp.status.as_u16(), 201);
-        let dbuser: User = serde_json::from_str(&resp.body).unwrap();
+        let dbuser: UserInfo = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbuser.username, user.username);
 
         // POST Login

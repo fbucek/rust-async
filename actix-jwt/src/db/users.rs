@@ -15,17 +15,19 @@ use crate::utils::{hash, token::UserToken};
 
 /// We literally never want to select `textsearchable_index_col`
 /// so we provide this type and constant to pass to `.select`
-type AllColumns = (
+type UserInfoSelect = (
     dsl::id,
     dsl::username,
     dsl::email,
+    dsl::created_at,
     dsl::login_session,
 );
 
-pub const ALL_COLUMNS: AllColumns = (
+pub const USER_INFO_COLUMNS: UserInfoSelect = (
     dsl::id,
     dsl::username,
     dsl::email,
+    dsl::created_at,
     dsl::login_session,
 );
 
@@ -38,13 +40,13 @@ pub struct LoginRequest {
 
 /// Response to /api/auth/login
 pub struct LoginInfo {
-    username: String,
-    login_session: String,
+    pub username: String,
+    pub login_session: String,
 }
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Queryable)]
-pub struct User {
+struct User {
     #[serde(skip)] 
     pub id: i32,
     pub username: String,
@@ -78,21 +80,30 @@ pub struct InputUser {
 }
 
 
-pub fn get_all_users(pool: Arc<Pool>) -> Result<Vec<User>> {
+#[derive(Debug, PartialEq, Serialize, Deserialize, Queryable)]
+pub struct UserInfo {
+    pub id: i32,
+    pub username: String,
+    pub email: String,
+    pub created_at: chrono::NaiveDateTime,
+    pub login_session: String,
+}
+
+pub fn get_all_users(pool: Arc<Pool>) -> Result<Vec<UserInfo>> {
     let conn = pool.get().unwrap();
     // FIXME: exposing hash
     Ok(dsl::users
-        // .select(ALL_COLUMNS)
-        .load::<User>(&conn)?
+        .select(USER_INFO_COLUMNS)
+        .load::<UserInfo>(&conn)?
     )
 }
 
-pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<User> {
+pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<UserInfo> {
     let conn = pool.get().unwrap();
     Ok(dsl::users
         .find(user_id)
-        // .select(ALL_COLUMNS)
-        .get_result::<User>(&conn)?)
+        .select(USER_INFO_COLUMNS)
+        .get_result::<UserInfo>(&conn)?)
 }
 
 
@@ -108,7 +119,7 @@ pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize> {
 /// 1. Check if `username` exists -> return Error
 /// 2. Create user with hashed passwor
 /// 3. return created user ( TODO: is it necessary? )
-pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<User> {
+pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
     log::info!("Adding single user");
     let conn = db.get().unwrap();
 
@@ -132,12 +143,11 @@ pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<User> {
         };
         diesel::insert_into(dsl::users).values(&new_user).execute(&conn)?;
 
-
+        // Return last added user
         Ok(dsl::users
             .order(dsl::id.desc())
-            // .select(ALL_COLUMNS)
-            // .limit(inserted_count as i64)
-            .get_result::<User>(&conn)?)
+            .select(USER_INFO_COLUMNS)
+            .get_result::<UserInfo>(&conn)?)
     } else {
         Err(anyhow!("User alread present {}", item.username))
     }
@@ -208,12 +218,11 @@ pub fn generate_login_uuid() -> String {
     uuid::Uuid::new_v4().to_simple().to_string()
 }
 
-pub fn update_user_login_session(user: &User, conn: &Conn) -> Result<usize> {
+fn update_user_login_session(user: &User, conn: &Conn) -> Result<usize> {
     Ok(diesel::update(dsl::users.find(user.id))
         .set(dsl::login_session.eq(&user.login_session))
         .execute(conn)?)
 }
-
 
 // pub fn update_session_id(username: &str, login_session_str: &str, conn: &Connection) -> bool {
 //     let conn = db.get().unwrap();

@@ -18,7 +18,7 @@ mod api_users {
     //#[cfg_attr(test, macro_use)]
     use super::*;
     use actixjwt::api;
-    use actixjwt::db::users::{InputUser, User};
+    use actixjwt::db::users::{InputUser, UserInfo};
 
     #[actix_rt::test]
     async fn test_get_user() {
@@ -69,20 +69,23 @@ mod api_users {
             email: "johndoe@apple.com".to_string(),
         };
 
+
+
+
         let resp = testax::post_json(&mut app, &user, "/users").await;
         assert_eq!(resp.status.as_u16(), 201);
-        let dbuser: User = serde_json::from_str(&resp.body).unwrap();
+        let dbuser: UserInfo = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbuser.username, user.username);
 
         let resp = testax::get(&mut app, "/users/1").await;
         assert_eq!(resp.status.as_u16(), 200); // user does not exists
-        let dbuser: User = serde_json::from_str(&resp.body).unwrap();
+        let dbuser: UserInfo = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbuser.username, user.username);
         assert_eq!(dbuser.id, 1);
 
         let resp = testax::get(&mut app, "/users").await;
         assert_eq!(resp.status.as_u16(), 200);
-        let dbusers: Vec<User> = serde_json::from_str(&resp.body).unwrap();
+        let dbusers: Vec<UserInfo> = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbusers.len(), 1);
         assert_eq!(dbusers.first().unwrap(), &dbuser);
     }

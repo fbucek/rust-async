@@ -5,7 +5,7 @@ use jsonwebtoken::{
     Header
 };
 
-use crate::db::users::User;
+use crate::db::users::LoginInfo;
 
 pub static KEY: [u8; 16] = *include_bytes!("../../secret.key");
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7; // in seconds
@@ -22,7 +22,7 @@ pub struct UserToken {
 }
 
 impl UserToken {
-    pub fn generate_token(login: User) -> String {
+    pub fn generate_token(login: LoginInfo) -> String {
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nanosecond -> second
         let payload = UserToken {
             iat: now,
