@@ -17,7 +17,12 @@ pub mod jwt {
     }
 
     pub fn verify_token(token_data: &TokenData<UserToken>, pool: Arc<Pool>) -> Result<String, String> {
-        if users::is_valid_login_session(pool, &token_data.claims ) {
+        let username = &token_data.claims.user;
+        let login_session = &token_data.claims.login_session;
+        // 
+        
+        // 
+        if users::is_valid_login_session(pool, username, login_session ) {
             Ok(token_data.claims.user.to_string())
         } else {
             Err("Invalid token".to_string())

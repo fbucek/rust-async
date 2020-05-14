@@ -32,13 +32,15 @@ pub const USER_INFO_COLUMNS: UserInfoSelect = (
 );
 
 /// When requesting login
+#[derive(Debug, Deserialize, Serialize)]
 pub struct LoginRequest {
     /// Can be email or username
-    login_name: String,
-    password: String,
+    pub username: String,
+    pub password: String,
 }
 
 /// Response to /api/auth/login
+#[derive(Debug, Deserialize, Serialize)]
 pub struct LoginInfo {
     pub username: String,
     pub login_session: String,
@@ -62,7 +64,7 @@ struct User {
 
 #[derive(Insertable, Debug)]
 #[table_name = "users"]
-pub struct NewUser<'a> {
+struct NewUser<'a> {
     // pub first_name: &'a str,
     // pub last_name: &'a str,
     pub username: &'a str,
@@ -116,12 +118,17 @@ pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize> {
 
 /// ## Steps 
 /// 
+/// Signup will use `lowercase` for `username`
+///
 /// 1. Check if `username` exists -> return Error
 /// 2. Create user with hashed passwor
 /// 3. return created user ( TODO: is it necessary? )
 pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
     log::info!("Adding single user");
     let conn = db.get().unwrap();
+
+    // Use lower case for username only
+    let username = item.username.to_lowercase();
 
     if dsl::users
         .filter(dsl::username.eq(&item.username))
@@ -133,9 +140,7 @@ pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
         let hashed_password = hash::argon_hash(item.password.as_bytes())?;
 
         let new_user = NewUser {
-            // first_name: &item.first_name,
-            // last_name: &item.last_name,
-            username: &item.username,
+            username: &username,
             password: &hashed_password,
             email: &item.email,
             created_at: chrono::Local::now().naive_local(),
@@ -158,15 +163,15 @@ pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
 /// 1. Check if `username` exists -> return Error
 /// 2. Create user with hashed passwor
 /// 3. return created user ( TODO: is it necessary? )
-pub fn login(login: LoginRequest, conn: &Conn) -> Result<LoginInfo> {
+pub fn login_user(db: Arc<Pool>, login: LoginRequest) -> Result<LoginInfo> {
+    let conn = db.get().unwrap();
     // let conn = pool.get().unwrap();
     
     // Get user based on LoginRequest
     let user_to_verify = dsl::users
-        .filter(dsl::username.eq(&login.login_name))
-        .or_filter(dsl::email.eq(&login.login_name))
-        .get_result::<User>(conn)
-        .unwrap();
+        .filter(dsl::username.eq(&login.username))
+        .or_filter(dsl::email.eq(&login.username))
+        .get_result::<User>(&conn)?;
 
     
     // Check if password is not empty
@@ -188,7 +193,7 @@ pub fn login(login: LoginRequest, conn: &Conn) -> Result<LoginInfo> {
     let mut user_to_verify = user_to_verify;
     user_to_verify.login_session = session_id;
     // Store session_id in database
-    update_user_login_session(&user_to_verify, conn)?;
+    update_user_login_session(&user_to_verify, &conn)?;
 
     Ok(LoginInfo {
         username: user_to_verify.username,
@@ -204,17 +209,17 @@ pub fn logout(user_id: i32, conn: &Conn) -> Result<()> {
 }
 
 
-pub fn is_valid_login_session(db: Arc<Pool>, user_token: &UserToken) -> bool {
+pub fn is_valid_login_session(db: Arc<Pool>, user: &str, session_id: &str) -> bool {
     let conn = db.get().unwrap();
     dsl::users
-        .filter(dsl::username.eq(&user_token.user))
-        .filter(dsl::login_session.eq(&user_token.login_session))
+        .filter(dsl::username.eq(user))
+        .filter(dsl::login_session.eq(session_id))
         // .select(ALL_COLUMNS)
         .get_result::<User>(&conn)
         .is_ok()
 }
 
-pub fn generate_login_uuid() -> String {
+fn generate_login_uuid() -> String {
     uuid::Uuid::new_v4().to_simple().to_string()
 }
 
@@ -223,15 +228,3 @@ fn update_user_login_session(user: &User, conn: &Conn) -> Result<usize> {
         .set(dsl::login_session.eq(&user.login_session))
         .execute(conn)?)
 }
-
-// pub fn update_session_id(username: &str, login_session_str: &str, conn: &Connection) -> bool {
-//     let conn = db.get().unwrap();
-//     if let Ok(user) = User::find_user_by_username(username, conn) {
-//         diesel::update(users.find(user.id))
-//             .set(login_session.eq(login_session_str.to_string()))
-//             .execute(conn)
-//             .is_ok()
-//     } else {
-//         false
-//     }
-// }
