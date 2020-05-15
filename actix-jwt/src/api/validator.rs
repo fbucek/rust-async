@@ -6,6 +6,11 @@ use actix_web_httpauth::extractors::AuthenticationError;
 use crate::db::{users, Pool};
 use std::sync::Arc;
 
+// Reexport
+pub use actix_web_httpauth::middleware::HttpAuthentication;
+pub use actix_web_httpauth::extractors::bearer;
+
+/// Json Web Token / validation https://jwt.io/
 pub mod jwt {
     use super::*;
     use crate::utils::token::{UserToken, KEY};
@@ -22,7 +27,7 @@ pub mod jwt {
     pub fn verify_token(
         token_data: &TokenData<UserToken>,
         pool: Arc<Pool>,
-    ) -> Result<String, String> {
+    ) -> anyhow::Result<String> {
         let username = &token_data.claims.user;
         let login_session = &token_data.claims.login_session;
         //
@@ -31,16 +36,18 @@ pub mod jwt {
         if users::is_valid_login_session(pool, username, login_session) {
             Ok(token_data.claims.user.to_string())
         } else {
-            Err("Invalid token".to_string())
+            Err(anyhow::anyhow!("Invalid token"))
         }
     }
 } // mod jwt
 
 /// Actix custom validator implementation - Validates JSON Web Token
-async fn validator(
+pub async fn auth_validator(
     req: ServiceRequest,
     credentials: BearerAuth,
 ) -> Result<ServiceRequest, actix_web::Error> {
+    trace!("auth_validator");
+    return Ok(req);
     let config = req
         .app_data::<Config>()
         .map(|data| data.get_ref().clone())
@@ -63,5 +70,19 @@ async fn validator(
             }
         }
         Err(_) => Err(AuthenticationError::from(config).into()),
+    }
+}
+
+
+pub async fn bearer_validator(req: ServiceRequest, credentials: BearerAuth) -> Result<ServiceRequest, actix_web::Error> {
+    if credentials.token() == "mF_9.B5f-4.1JqM" {
+        Ok(req)
+    } else {
+        let config = req.app_data::<Config>()
+            .map(|data| data.get_ref().clone())
+            .unwrap_or_else(Default::default)
+            .scope("urn:example:channel=HBO&urn:example:rating=G,PG-13");
+
+        Err(AuthenticationError::from(config).into())
     }
 }

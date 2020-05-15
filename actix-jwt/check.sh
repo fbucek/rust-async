@@ -9,7 +9,9 @@ trap 'LASTRES=$?; LAST=$BASH_COMMAND; if [[ LASTRES -ne 0 ]]; then fail "Command
 SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # this source dir
 
 info "Run integrations tests"
-cargo test --package actixjwt --no-fail-fast
+# Backtrace: RUST_BACKTRACE=1
+# RUST_BACKTRACE=1 RUST_LOG=actix_jwt=trace cargo test --package actixjwt --no-fail-fast -- --nocapture
+RUST_LOG=actixjwt=trace cargo test --package actixjwt --no-fail-fast -- --nocapture
 
 info "Sleep for until port is open"
 while ! nc -z localhost 8080; do   

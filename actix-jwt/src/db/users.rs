@@ -115,27 +115,27 @@ pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize> {
 /// 1. Check if `username` exists -> return Error
 /// 2. Create user with hashed passwor
 /// 3. return created user ( TODO: is it necessary? )
-pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
+pub fn signup_user(db: Arc<Pool>, user: &InputUser) -> Result<UserInfo> {
     log::info!("Adding single user");
     let conn = db.get().unwrap();
 
     // Use lower case for username only
-    let username = item.username.to_lowercase();
+    let username = user.username.to_lowercase();
 
     if dsl::users
-        .filter(dsl::username.eq(&item.username))
+        .filter(dsl::username.eq(&user.username))
         // .select(ALL_COLUMNS)
         .get_result::<User>(&conn)
         .is_err()
     {
         info!("Implement adding to sqlite database");
 
-        let hashed_password = hash::argon_hash(item.password.as_bytes())?;
+        let hashed_password = hash::argon_hash(user.password.as_bytes())?;
 
         let new_user = NewUser {
             username: &username,
             password: &hashed_password,
-            email: &item.email,
+            email: &user.email,
             created_at: chrono::Local::now().naive_local(),
             login_session: "",
         };
@@ -149,16 +149,16 @@ pub fn signup_user(db: Arc<Pool>, item: &InputUser) -> Result<UserInfo> {
             .select(USER_INFO_COLUMNS)
             .get_result::<UserInfo>(&conn)?)
     } else {
-        Err(anyhow!("User alread present {}", item.username))
+        Err(anyhow!("User alread present {}", user.username))
     }
 }
 
 /// ## Steps
 ///
 /// 1. Check if `username` exists -> return Error
-/// 2. Create user with hashed passwor
+/// 2. Create user with hashed password ad
 /// 3. return created user ( TODO: is it necessary? )
-pub fn login_user(db: Arc<Pool>, login: LoginRequest) -> Result<LoginInfo> {
+pub fn login_user(db: Arc<Pool>, login: &LoginRequest) -> Result<LoginInfo> {
     let conn = db.get().unwrap();
     // let conn = pool.get().unwrap();
 
@@ -195,11 +195,20 @@ pub fn login_user(db: Arc<Pool>, login: LoginRequest) -> Result<LoginInfo> {
     })
 }
 
-pub fn logout(user_id: i32, conn: &Conn) -> Result<()> {
-    let mut user = dsl::users.find(user_id).get_result::<User>(conn)?;
+/// Invalidate login_session for selected user
+///
+/// ### Note
+///
+/// Must not be possible to logout different user
+///
+pub fn logout_user(db: Arc<Pool>, username: &str) -> Result<()> {
+    let conn = db.get().unwrap();
+    let mut user = dsl::users
+        .filter(dsl::username.eq(username))
+        .get_result::<User>(&conn)?;
     user.login_session = "".to_string();
 
-    update_user_login_session(&user, conn).map(|_| ())
+    update_user_login_session(&user, &conn).map(|_| ())
 }
 
 pub fn is_valid_login_session(db: Arc<Pool>, user: &str, session_id: &str) -> bool {

@@ -2,10 +2,11 @@ use actix_web::{App, HttpServer};
 use diesel::prelude::*;
 
 use actixjwt::{api, db};
+use actixjwt::api::validator::*;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::dotenv().ok();
+    dotenv::dotenv().expect("Not possible to load .env file");
     std::env::set_var("RUST_LOG", "actix_jwt=trace, actix_web=debug");
     env_logger::init();
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -20,9 +21,12 @@ async fn main() -> std::io::Result<()> {
 
     println!("http://{}", url);
 
+    
     HttpServer::new(move || {
+        let auth = HttpAuthentication::bearer(auth_validator);
         App::new()
             .data(pool.clone())
+            .wrap(auth)
             .configure(api::auth::config_app)
             .configure(api::users::config_app)
     })

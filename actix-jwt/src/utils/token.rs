@@ -7,6 +7,13 @@ use crate::db::users::LoginInfo;
 pub static KEY: [u8; 16] = *include_bytes!("../../secret.key");
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7; // in seconds
 
+
+#[derive(Serialize, Deserialize)]
+pub struct TokenBodyResponse {
+    pub token: String,
+    pub token_type: String,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct UserToken {
     // issued at
@@ -32,7 +39,6 @@ impl UserToken {
             &Header::default(),
             &payload,
             &EncodingKey::from_secret(&KEY),
-        )
-        .unwrap()
+        ).expect("Not possible to encode JWT token")
     }
 }
