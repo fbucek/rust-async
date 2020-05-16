@@ -66,8 +66,8 @@ pub async fn logout_user(
     let message = format!("Hello, user with token !"); //, authorization.token());
     // let message = format!("Hello, user with token {}!", authorization.token());
 
-    // let token = authorization.token();
-    let token = "test";
+    let token = authorization.token();
+    // let token = "test";
 
     // TODO: Needs to get `username`
     match logout(db, token).await {
@@ -136,7 +136,7 @@ async fn logout(pool: web::Data<Pool>, token: &str ) -> anyhow::Result<HttpRespo
     Ok(
         web::block(move || db::users::logout_user(pool, &username))
             .await
-            .map(|_| HttpResponse::Ok().json(ResponseBody::new("Login succesfull", "")))
+            .map(|_| HttpResponse::Ok().json(ResponseBody::new("Logout succesfull", "")))
             .map_err(|err| anyhow::anyhow!("Not possible to logout user: {:?}", err)
         )?
     )

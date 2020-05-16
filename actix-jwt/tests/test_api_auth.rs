@@ -80,7 +80,7 @@ mod api_auth {
         assert_eq!(resp.status.as_u16(), 200);
         let json_body : common::TokenBodyResponse = serde_json::from_str(&resp.body)
             .expect("Not possible to parse TokenBodyResponse token from body");
-            
+        log::trace!("token body: {:?}", json_body);   
         
         let req = test::TestRequest::post()
             .header("Authorization", format!("Bearer {}", json_body.token))
