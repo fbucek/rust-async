@@ -3,9 +3,7 @@ use crate::db::{self, Pool};
 use actix_web::{get, post, web, Error, HttpResponse};
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
-    log::info!("Actix user config");
     cfg
-        //.route("/users", web::get().to(get_users))
         .route("/users/{id}", web::get().to(get_user_by_id))
         .route("/users/{id}", web::delete().to(delete_user));
 

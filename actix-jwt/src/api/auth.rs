@@ -1,8 +1,6 @@
 use crate::db::users::{InputUser, LoginRequest};
 use crate::db::{self, Pool};
-use actix_web::{post, web, Error, HttpRequest, HttpResponse, http::header::HeaderValue};
-
-use serde::{Serialize, Deserialize};
+use actix_web::{post, web, Error, HttpResponse};
 
 use crate::utils::{token, response::ResponseBody};
 use super::validator::*;

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use super::schema::users::{self, dsl};
 use super::{Conn, Pool};
-use crate::utils::{hash, token::UserToken};
+use crate::utils::hash;
 
 /// We literally never want to select `textsearchable_index_col`
 /// so we provide this type and constant to pass to `.select`

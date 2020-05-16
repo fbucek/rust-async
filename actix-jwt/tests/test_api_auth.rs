@@ -33,7 +33,7 @@ mod api_auth {
     fn create_login_request(user: &str, password: &str) -> LoginRequest {
         LoginRequest {
             username: user.to_string(),
-            password: user.to_string(),
+            password: password.to_string(),
         }
     }
 

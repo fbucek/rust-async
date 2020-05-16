@@ -2,7 +2,6 @@ use actix_web::{App, HttpServer};
 use diesel::prelude::*;
 
 use actixjwt::{api, db};
-use actixjwt::api::validator::*;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
