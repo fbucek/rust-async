@@ -18,9 +18,9 @@ mod api_auth {
     //#[cfg_attr(test, macro_use)]
     use super::*;
     use actixjwt::api;
-    use actixjwt::db::users::{InputUser, UserInfo, LoginRequest, LoginInfo};
+    use actixjwt::db::users::{InputUser, UserInfo, LoginRequest};
     use actixjwt::common;
-    use actixjwt::api::validator::*;
+    use actix_service::Service;
 
     fn create_user(user: &str, pass: &str, email: &str) -> InputUser {
         InputUser {
@@ -37,10 +37,6 @@ mod api_auth {
         }
     }
 
-    fn init() {
-        let _ = env_logger::builder().is_test(true).try_init();
-    }
-
     #[actix_rt::test]
     async fn test_auth() {
         // init();
@@ -53,7 +49,7 @@ mod api_auth {
         embedded_migrations::run(conn).expect("Migration not possible to run");
 
 
-        let auth = HttpAuthentication::bearer(auth_validator);
+        // let auth = HttpAuthentication::bearer(auth_validator);
 
         let mut app = test::init_service(
 
@@ -82,13 +78,35 @@ mod api_auth {
             .expect("Not possible to parse TokenBodyResponse token from body");
         log::trace!("token body: {:?}", json_body);   
         
+        // Unauthorized logout ( must fail )
+        let req = test::TestRequest::post()
+            // .header("Authorization", format!("Bearer {}", json_body.token))
+            .uri("/api/private/logout").to_request();
+        let resp = app.call(req).await;
+        // Problem is that resp is error ( AuthenticationError with status code 401 )
+        // But resp error status code is 500
+        assert!(resp.is_err());
+
+        if let Err(err) = resp {
+            let resp_error = err.as_response_error();
+            eprintln!("Err is:{:?}", resp_error.status_code());
+            eprintln!("Err is:{:?}", err);
+            // eprintln!("Err is:{:?}", err.as_error::<AuthenticationError<bearer::Bearer>>().unwrap());
+        }
+        
+
+        // Authorize logout
+        // curl -I -X POST http://localhost:8080/api/private/logout
         let req = test::TestRequest::post()
             .header("Authorization", format!("Bearer {}", json_body.token))
             .uri("/api/private/logout").to_request();
-        let resp = test::call_service(&mut app, req).await;
+        let resp = app.call(req)
+            .await
+            .expect("Not expecting error");
+        // let resp = testax::call_service_res(&mut app, req).await;
         assert_eq!(resp.status().as_u16(), 200);
         let body = test::read_body(resp).await;
         let body = String::from_utf8_lossy(&body).to_string();
-        assert_eq!(body, "d");
+        assert_eq!(body, "{\"message\":\"Logout succesfull\",\"data\":\"\"}");
     }
 }

@@ -1,12 +1,12 @@
 use actix_web::dev::ServiceRequest;
 use actix_web_httpauth::extractors::bearer::{BearerAuth, Config};
-use actix_web_httpauth::extractors::AuthenticationError;
 
 //use alcoholic_jwt::{token_kid, validate, Validation, JWKS};
 use crate::db::{users, Pool};
 use std::sync::Arc;
 
 // Reexport
+pub use actix_web_httpauth::extractors::AuthenticationError;
 pub use actix_web_httpauth::middleware::HttpAuthentication;
 pub use actix_web_httpauth::extractors::bearer;
 
@@ -16,6 +16,7 @@ pub mod jwt {
     use crate::utils::token::{UserToken, KEY};
     use jsonwebtoken::{DecodingKey, TokenData, Validation};
 
+    /// Decode JWT from 'str' into JWD data  
     pub fn decode_token(token: &str) -> jsonwebtoken::errors::Result<TokenData<UserToken>> {
         jsonwebtoken::decode::<UserToken>(
             token,
@@ -47,7 +48,7 @@ pub async fn auth_validator(
     credentials: BearerAuth,
 ) -> Result<ServiceRequest, actix_web::Error> {
     trace!("auth_validator");
-    return Ok(req);
+    // return Ok(req);
     let config = req
         .app_data::<Config>()
         .map(|data| data.get_ref().clone())

@@ -128,8 +128,7 @@ pub fn signup_user(db: Arc<Pool>, user: &InputUser) -> Result<UserInfo> {
         .get_result::<User>(&conn)
         .is_err()
     {
-        info!("Implement adding to sqlite database");
-
+        // Not storing password but HASH
         let hashed_password = hash::argon_hash(user.password.as_bytes())?;
 
         let new_user = NewUser {
@@ -195,12 +194,7 @@ pub fn login_user(db: Arc<Pool>, login: &LoginRequest) -> Result<LoginInfo> {
     })
 }
 
-/// Invalidate login_session for selected user
-///
-/// ### Note
-///
-/// Must not be possible to logout different user
-///
+/// Invalidate UUID login_session for selected user
 pub fn logout_user(db: Arc<Pool>, username: &str) -> Result<()> {
     let conn = db.get().unwrap();
     let mut user = dsl::users
@@ -211,6 +205,7 @@ pub fn logout_user(db: Arc<Pool>, username: &str) -> Result<()> {
     update_user_login_session(&user, &conn).map(|_| ())
 }
 
+/// Checks if UUID for login session is valid
 pub fn is_valid_login_session(db: Arc<Pool>, user: &str, session_id: &str) -> bool {
     let conn = db.get().unwrap();
     dsl::users
@@ -221,10 +216,12 @@ pub fn is_valid_login_session(db: Arc<Pool>, user: &str, session_id: &str) -> bo
         .is_ok()
 }
 
+/// Creates unique UUID identifier for login session
 fn generate_login_uuid() -> String {
     uuid::Uuid::new_v4().to_simple().to_string()
 }
 
+/// Updates UUID login_session token into database
 fn update_user_login_session(user: &User, conn: &Conn) -> Result<usize> {
     Ok(diesel::update(dsl::users.find(user.id))
         .set(dsl::login_session.eq(&user.login_session))

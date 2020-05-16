@@ -18,7 +18,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
         // .service(logout_user)
     );
     cfg.service(web::scope("api/private")
-        // .wrap(auth)
+        .wrap(auth)
         .service(logout_user)
     );
 }
@@ -60,73 +60,21 @@ pub async fn logout_user(
     // req: HttpRequest,
     // NOTE: Possible to have authorization header where but data must be set
     authorization: bearer::BearerAuth,
-    db: web::Data<Pool>,
+    pool: web::Data<Pool>,
 ) -> Result<HttpResponse, Error> {
-    info!("handling logout");
-    let message = format!("Hello, user with token !"); //, authorization.token());
-    // let message = format!("Hello, user with token {}!", authorization.token());
-
+    // Bearer token
     let token = authorization.token();
-    // let token = "test";
 
-    // TODO: Needs to get `username`
-    match logout(db, token).await {
+    match logout(pool, token).await {
         Ok(resp) => Ok(resp),
-        Err(err) => Ok(HttpResponse::Ok().json(ResponseBody::new("Not possible to logout", "")))
+        Err(err) => Ok(HttpResponse::Ok()
+            .json(ResponseBody::new(&format!("Not possible to logout: {:?}", err), "")))
     }
-    // if let Some(authen_header) = req.headers().get("Authorization") {
-    //     match logout(db, authen_header).await {
-    //         Ok(resp) => Ok(resp),
-    //         Err(err) => Ok(HttpResponse::Ok().json(ResponseBody::new("Not possible to logout", "")))
-    //     }
-    // } else {
-    //     Ok(HttpResponse::BadRequest().json(ResponseBody::new("Token is missing", "")))
-    // }
-    // let username: &str = todo!("Have to get username from bearer header validation token");
-
-    // if let Some(authen_header) = req.headers().get("Authorization") {
-
-
-
-
-    // } else {
-    //     Ok(HttpResponse::BadRequest().json(ResponseBody::new(constants::MESSAGE_TOKEN_MISSING, constants::EMPTY)))
-    // }
-
-    // if let Ok(authen_str) = authen_header.to_str() {
-    //     if authen_str.starts_with("bearer") {
-    //         let token = authen_str[6..authen_str.len()].trim();
-    //         if let Ok(token_data) = token_utils::decode_token(token.to_string()) {
-    //             if let Ok(username) = token_utils::verify_token(&token_data, pool) {
-    //                 if let Ok(user) = User::find_user_by_username(&username, &pool.get().unwrap()) {
-    //                     User::logout(user.id, &pool.get().unwrap());
-    //                     return Ok(());
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-
-
-    // Ok(
-    //     web::block(move || db::users::logout_user(db.into_inner(), &username))
-    //         .await
-    //         .map(|login_info| HttpResponse::Ok().json(login_info)) // status 200
-    //         .map_err(|_| HttpResponse::InternalServerError())?,
-    // )
 }
 
 
 async fn logout(pool: web::Data<Pool>, token: &str ) -> anyhow::Result<HttpResponse> {
     let pool = pool.into_inner();
-
-    // let authen_str = token;
-    // if ! authen_str.starts_with("bearer") {
-    //     return Ok(HttpResponse::InternalServerError().json(
-    //         ResponseBody::new("Not valid authorization header", "")
-    //     ))
-    // }
 
     // Decode username from token
     // let token = authen_str[6..authen_str.len()].trim();
