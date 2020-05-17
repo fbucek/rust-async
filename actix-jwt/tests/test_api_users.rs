@@ -17,7 +17,7 @@ embed_migrations!("migrations");
 mod api_users {
     //#[cfg_attr(test, macro_use)]
     use super::*;
-    use actixjwt::api;
+    use actixjwt::handlers;
     use actixjwt::db::users::{InputUser, UserInfo};
 
     #[actix_rt::test]
@@ -31,19 +31,19 @@ mod api_users {
         let mut app = test::init_service(
             App::new()
                 .data(test_db.pool)
-                .configure(api::users::config_app),
+                .configure(handlers::users::config_app),
         )
         .await;
 
-        let resp = testax::get(&mut app, "/fake/users/id").await;
+        let resp = testax::get(&mut app, "/fake/users/id").await.unwrap();
         assert_eq!(resp.status.as_u16(), 404);
         assert_eq!(resp.body, "");
 
-        let resp = testax::get(&mut app, "/users/1").await;
+        let resp = testax::get(&mut app, "/users/1").await.unwrap();
         assert_eq!(resp.status.as_u16(), 500); // user does not exists
         assert_eq!(resp.body, "");
 
-        let resp = testax::get(&mut app, "/users").await;
+        let resp = testax::get(&mut app, "/users").await.unwrap();
         assert_eq!(resp.status.as_u16(), 200);
         assert_eq!(resp.body, "[]");
     }
@@ -59,7 +59,7 @@ mod api_users {
         let mut app = test::init_service(
             App::new()
                 .data(test_db.pool)
-                .configure(api::users::config_app),
+                .configure(handlers::users::config_app),
         )
         .await;
 
@@ -69,18 +69,18 @@ mod api_users {
             email: "johndoe@apple.com".to_string(),
         };
 
-        let resp = testax::post_json(&mut app, &user, "/users").await;
+        let resp = testax::post_json(&mut app, &user, "/users").await.unwrap();
         assert_eq!(resp.status.as_u16(), 201);
         let dbuser: UserInfo = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbuser.username, user.username);
 
-        let resp = testax::get(&mut app, "/users/1").await;
+        let resp = testax::get(&mut app, "/users/1").await.unwrap();
         assert_eq!(resp.status.as_u16(), 200); // user does not exists
         let dbuser: UserInfo = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbuser.username, user.username);
         assert_eq!(dbuser.id, 1);
 
-        let resp = testax::get(&mut app, "/users").await;
+        let resp = testax::get(&mut app, "/users").await.unwrap();
         assert_eq!(resp.status.as_u16(), 200);
         let dbusers: Vec<UserInfo> = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbusers.len(), 1);
@@ -98,7 +98,7 @@ mod api_users {
         let mut app = test::init_service(
             App::new()
                 .data(test_db.pool)
-                .configure(api::users::config_app),
+                .configure(handlers::users::config_app),
         )
         .await;
 
@@ -108,19 +108,19 @@ mod api_users {
 
         // BAD REQUEST
         // bad JSON
-        let resp = testax::post_json(&mut app, &user, "/users").await;
+        let resp = testax::post_json(&mut app, &user, "/users").await.unwrap();
         assert_eq!(resp.status.as_u16(), 400);
         assert_eq!(resp.body, "");
 
         // INTERNAL SERVER ERROR
         // Non existing User
-        let resp = testax::get(&mut app, "/users/1").await;
+        let resp = testax::get(&mut app, "/users/1").await.unwrap();
         assert_eq!(resp.status.as_u16(), 500); // user does not exists
         assert_eq!(resp.body, "");
 
         // EMPTY RESPONSE
         // []
-        let resp = testax::get(&mut app, "/users").await;
+        let resp = testax::get(&mut app, "/users").await.unwrap();
         assert_eq!(resp.status.as_u16(), 200);
         assert_eq!(resp.body, "[]");
     }

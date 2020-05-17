@@ -17,7 +17,7 @@ embed_migrations!("migrations");
 mod api_auth {
     //#[cfg_attr(test, macro_use)]
     use super::*;
-    use actixjwt::api;
+    use actixjwt::handlers;
     use actixjwt::db::users::{InputUser, UserInfo, LoginRequest};
     use actixjwt::common;
     use actix_service::Service;
@@ -56,8 +56,8 @@ mod api_auth {
             App::new()
                 // .wrap(auth)
                 .data(test_db.pool)
-                .configure(api::users::config_app)
-                .configure(api::auth::config_app),
+                .configure(handlers::users::config_app)
+                .configure(handlers::auth::config_app),
         ).await;
 
         let username = "johndoe";
@@ -65,14 +65,14 @@ mod api_auth {
         let user = create_user(username,password, "johndoe@apple.com");
         
         // POST User
-        let resp = testax::post_json(&mut app, &user, "/api/auth/signup").await;
+        let resp = testax::post_json(&mut app, &user, "/api/user/signup").await.unwrap();
         assert_eq!(resp.status.as_u16(), 201);
         let dbuser: UserInfo = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbuser.username, user.username);
         
         // POST Login
         let login_req = create_login_request(username, password);
-        let resp = testax::post_json(&mut app, &login_req, "/api/auth/login").await;
+        let resp = testax::post_json(&mut app, &login_req, "/api/user/login").await.unwrap();
         assert_eq!(resp.status.as_u16(), 200);
         let json_body : common::TokenBodyResponse = serde_json::from_str(&resp.body)
             .expect("Not possible to parse TokenBodyResponse token from body");
@@ -81,7 +81,7 @@ mod api_auth {
         // Unauthorized logout ( must fail )
         let req = test::TestRequest::post()
             // .header("Authorization", format!("Bearer {}", json_body.token))
-            .uri("/api/private/logout").to_request();
+            .uri("/api/auth/logout").to_request();
         let resp = app.call(req).await;
         // Problem is that resp is error ( AuthenticationError with status code 401 )
         // But resp error status code is 500
@@ -99,7 +99,7 @@ mod api_auth {
         // curl -I -X POST http://localhost:8080/api/private/logout
         let req = test::TestRequest::post()
             .header("Authorization", format!("Bearer {}", json_body.token))
-            .uri("/api/private/logout").to_request();
+            .uri("/api/auth/logout").to_request();
         let resp = app.call(req)
             .await
             .expect("Not expecting error");

@@ -2,20 +2,19 @@ use crate::db::users::{InputUser, LoginRequest};
 use crate::db::{self, Pool};
 use actix_web::{post, web, Error, HttpResponse};
 
-use crate::utils::{token, response::ResponseBody};
-use super::validator::*;
+use crate::utils::{errors::ServiceError, token, response::ResponseBody, validator::*};
 use crate::common;
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     let auth = HttpAuthentication::bearer(auth_validator);
 
-    cfg.service(web::scope("api/auth")
+    cfg.service(web::scope("api/user")
         .service(signup_user)
         .service(login_user)
         //.wrap(auth)
         // .service(logout_user)
     );
-    cfg.service(web::scope("api/private")
+    cfg.service(web::scope("api/auth")
         .wrap(auth)
         .service(logout_user)
     );
@@ -39,6 +38,7 @@ pub async fn login_user(
     db: web::Data<Pool>,
     login_req: web::Json<LoginRequest>,
 ) -> Result<HttpResponse, Error> {
+    info!("User: {} trying to login", login_req.username);
     Ok(
         web::block(move || db::users::login_user(db.into_inner(), &login_req.into_inner()))
             .await
@@ -49,7 +49,7 @@ pub async fn login_user(
                 };
                 HttpResponse::Ok().json(token_response)
             }) // status 200
-            .map_err(|_| HttpResponse::InternalServerError())?,
+            .map_err(|_| ServiceError::LoginError("Not possible to login user".to_string()))?,
     )
 }
 
@@ -76,8 +76,8 @@ async fn logout(pool: web::Data<Pool>, token: &str ) -> anyhow::Result<HttpRespo
 
     // Decode username from token
     // let token = authen_str[6..authen_str.len()].trim();
-    let token_data = jwt::decode_token(token)?;
-    let username = jwt::verify_token(&token_data, pool.clone())?;
+    let token_data = token::jwt::decode_token(token)?;
+    let username = token::jwt::verify_token(&token_data, pool.clone())?;
 
     Ok(
         web::block(move || db::users::logout_user(pool, &username))

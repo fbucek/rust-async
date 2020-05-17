@@ -116,7 +116,7 @@ pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize> {
 /// 2. Create user with hashed passwor
 /// 3. return created user ( TODO: is it necessary? )
 pub fn signup_user(db: Arc<Pool>, user: &InputUser) -> Result<UserInfo> {
-    log::info!("Adding single user");
+    log::info!("signup user");
     let conn = db.get().unwrap();
 
     // Use lower case for username only
@@ -160,11 +160,12 @@ pub fn signup_user(db: Arc<Pool>, user: &InputUser) -> Result<UserInfo> {
 pub fn login_user(db: Arc<Pool>, login: &LoginRequest) -> Result<LoginInfo> {
     let conn = db.get().unwrap();
     // let conn = pool.get().unwrap();
-
+    // Use lower case for username only
+    let username = &login.username;
     // Get user based on LoginRequest
     let user_to_verify = dsl::users
-        .filter(dsl::username.eq(&login.username))
-        .or_filter(dsl::email.eq(&login.username))
+        .filter(dsl::username.eq(username))
+        .or_filter(dsl::email.eq(username))
         .get_result::<User>(&conn)?;
 
     // Check if password is not empty

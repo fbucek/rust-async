@@ -1,7 +1,7 @@
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, middleware::Logger};
 use diesel::prelude::*;
 
-use actixjwt::{api, db};
+use actixjwt::{handlers, db};
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -24,10 +24,11 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         // let auth = HttpAuthentication::bearer(auth_validator);
         App::new()
+            .wrap(Logger::default())
             .data(pool.clone())
             // .wrap(auth)
-            .configure(api::auth::config_app)
-            .configure(api::users::config_app)
+            .configure(handlers::auth::config_app)
+            .configure(handlers::users::config_app)
     })
     .bind(url)?
     .run()

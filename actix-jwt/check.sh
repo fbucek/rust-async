@@ -18,16 +18,34 @@ while ! nc -z localhost 8080; do
     sleep 0.1 # wait for 1/10 of the second before check again
 done
 
+info "Signup user"
+curl -i -X POST 'http://127.0.0.1:8080/api/user/signup' \
+    -H "Content-Type: application/json" \
+    --data '{
+    "username": "John",
+    "password": "Strong password",
+    "email": "johndoe@email.com"
+    }'
+
+echo ""
+info "Login user"
+curl -i -X POST 'http://127.0.0.1:8080/api/user/login' \
+    -H "Content-Type: application/json" \
+    --data '{
+    "username": "john",
+    "password": "Strong password"
+    }'
+
 # TODO: remove in favour of intergration tests
 info "Get user"
 curl -X GET 'http://127.0.0.1:8080/users/1'
 
 info "Add user"
-curl -X POST 'http://127.0.0.1:8080/users' \
+curl -i -X POST 'http://127.0.0.1:8080/users' \
     -H "Content-Type: application/json" \
     --data '{
-    "first_name": "John",
-    "last_name": "Doe",
+    "username": "John",
+    "password": "Doe",
     "email": "johndoe@email.com"
     }'
 
