@@ -105,7 +105,12 @@ pub fn db_get_user_by_id(pool: Arc<Pool>, user_id: i32) -> Result<UserInfo> {
 pub fn delete_single_user(db: Arc<Pool>, user_id: i32) -> Result<usize> {
     let conn = db.get().unwrap();
     let count = delete(dsl::users.find(user_id)).execute(&conn)?;
-    Ok(count)
+    if count < 1 {
+        let text = format!("No user with id: {}", user_id);
+        Err(anyhow!(text))
+    } else {
+        Ok(count)
+    }
 }
 
 /// ## Steps
@@ -148,7 +153,7 @@ pub fn signup_user(db: Arc<Pool>, user: &InputUser) -> Result<UserInfo> {
             .select(USER_INFO_COLUMNS)
             .get_result::<UserInfo>(&conn)?)
     } else {
-        Err(anyhow!("User alread present {}", user.username))
+        Err(anyhow!("User ( {} ) already present", user.username))
     }
 }
 

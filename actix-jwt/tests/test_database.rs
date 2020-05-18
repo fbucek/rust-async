@@ -75,14 +75,10 @@ mod database {
         assert_eq!(deleted_count, 1, "Only one item should be deleted");
 
         // DELETE non existins user
-        let deleted_count = db::users::delete_single_user(pool.clone(), 1000).expect(&format!(
-            "Not possible to delete user with id: {}",
-            dbuser.id
-        ));
-        assert_eq!(
-            deleted_count, 0,
-            "1000 does not exists anything must be deleted"
-        );
+        let del_res = db::users::delete_single_user(pool.clone(), 1000);
+        assert!(del_res.is_err());
+        let err_text = format!("{:?}", del_res);
+        assert_eq!(err_text, "Err(No user with id: 1000)");
 
         // Database must be empty
         let all_user = db::users::get_all_users(pool.clone())
@@ -194,5 +190,8 @@ mod database {
         // johndoe -> Johndoe must not be possible to add
         let user_b = create_user("Johndoe", "", "");
         assert!(!db::users::signup_user(pool.clone(), &user_b).is_ok());
+
+        
+
     }
 }

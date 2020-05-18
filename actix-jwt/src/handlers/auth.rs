@@ -8,7 +8,7 @@ use crate::common;
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     let auth = HttpAuthentication::bearer(auth_validator);
 
-    cfg.service(web::scope("api/user")
+    cfg.service(web::scope("api/users")
         .service(signup_user)
         .service(login_user)
         //.wrap(auth)
@@ -29,7 +29,7 @@ pub async fn signup_user(
         web::block(move || db::users::signup_user(db.into_inner(), &user.into_inner()))
             .await
             .map(|user| HttpResponse::Created().json(user)) // status 201
-            .map_err(|_| HttpResponse::InternalServerError())?,
+            .map_err(|err| ServiceError::DbError(format!("Not possible create user: {:?}", err)))?,
     )
 }
 
@@ -49,7 +49,7 @@ pub async fn login_user(
                 };
                 HttpResponse::Ok().json(token_response)
             }) // status 200
-            .map_err(|_| ServiceError::LoginError("Not possible to login user".to_string()))?,
+            .map_err(|err| ServiceError::LoginError(format!("Not possible to login user: {:?}", err)))?,
     )
 }
 

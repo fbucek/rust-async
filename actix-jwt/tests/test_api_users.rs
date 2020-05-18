@@ -41,7 +41,7 @@ mod api_users {
 
         let resp = testax::get(&mut app, "/users/1").await.unwrap();
         assert_eq!(resp.status.as_u16(), 500); // user does not exists
-        assert_eq!(resp.body, "");
+        assert_eq!(resp.body, r#"{"message":"Not possible get user by id: 1","data":""}"#);
 
         let resp = testax::get(&mut app, "/users").await.unwrap();
         assert_eq!(resp.status.as_u16(), 200);
@@ -116,7 +116,7 @@ mod api_users {
         // Non existing User
         let resp = testax::get(&mut app, "/users/1").await.unwrap();
         assert_eq!(resp.status.as_u16(), 500); // user does not exists
-        assert_eq!(resp.body, "");
+        assert_eq!(resp.body, r#"{"message":"Not possible get user by id: 1","data":""}"#);
 
         // EMPTY RESPONSE
         // []

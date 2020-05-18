@@ -19,24 +19,35 @@ while ! nc -z localhost 8080; do
 done
 
 info "Signup user"
-curl -i -X POST 'http://127.0.0.1:8080/api/user/signup' \
+curl -i -X POST 'http://127.0.0.1:8080/api/users/signup' \
     -H "Content-Type: application/json" \
     --data '{
-    "username": "John",
+    "username": "johndoe",
+    "password": "Strong password",
+    "email": "johndoe@email.com"
+    }'
+
+echo ""
+info "Signup user - expecting error"
+    curl -i -X POST 'http://127.0.0.1:8080/api/users/signup' \
+    -H "Content-Type: application/json" \
+    --data '{
+    "username": "johndoe",
     "password": "Strong password",
     "email": "johndoe@email.com"
     }'
 
 echo ""
 info "Login user"
-curl -i -X POST 'http://127.0.0.1:8080/api/user/login' \
+curl -i -X POST 'http://127.0.0.1:8080/api/users/login' \
     -H "Content-Type: application/json" \
     --data '{
-    "username": "john",
+    "username": "johndoe",
     "password": "Strong password"
     }'
 
 # TODO: remove in favour of intergration tests
+echo ""
 info "Get user"
 curl -X GET 'http://127.0.0.1:8080/users/1'
 
@@ -44,8 +55,8 @@ info "Add user"
 curl -i -X POST 'http://127.0.0.1:8080/users' \
     -H "Content-Type: application/json" \
     --data '{
-    "username": "John",
-    "password": "Doe",
+    "username": "johndoe",
+    "password": "Strong password",
     "email": "johndoe@email.com"
     }'
 
@@ -60,7 +71,7 @@ info "Sign up"
 curl -X POST 'http://127.0.0.1:8080/api/auth/signup' \
     -H "Content-Type: application/json" \
     --data '{
-    "username": "user",
+    "username": "johndoe",
     "email": "user@email.com",
     "password": "4S3cr3tPa55w0rd"
     }'

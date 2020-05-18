@@ -65,14 +65,14 @@ mod api_auth {
         let user = create_user(username,password, "johndoe@apple.com");
         
         // POST User
-        let resp = testax::post_json(&mut app, &user, "/api/user/signup").await.unwrap();
+        let resp = testax::post_json(&mut app, &user, "/api/users/signup").await.unwrap();
         assert_eq!(resp.status.as_u16(), 201);
         let dbuser: UserInfo = serde_json::from_str(&resp.body).unwrap();
         assert_eq!(dbuser.username, user.username);
         
         // POST Login
         let login_req = create_login_request(username, password);
-        let resp = testax::post_json(&mut app, &login_req, "/api/user/login").await.unwrap();
+        let resp = testax::post_json(&mut app, &login_req, "/api/users/login").await.unwrap();
         assert_eq!(resp.status.as_u16(), 200);
         let json_body : common::TokenBodyResponse = serde_json::from_str(&resp.body)
             .expect("Not possible to parse TokenBodyResponse token from body");

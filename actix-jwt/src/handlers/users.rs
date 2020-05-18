@@ -1,13 +1,15 @@
 use crate::db::users::InputUser;
 use crate::db::{self, Pool};
-use actix_web::{get, post, web, Error, HttpResponse};
+use crate::utils::errors::ServiceError;
+use crate::utils::response::ResponseBody;
+use actix_web::{delete, get, post, web, Error, HttpResponse};
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     cfg
-        .route("/users/{id}", web::get().to(get_user_by_id))
-        .route("/users/{id}", web::delete().to(delete_user));
-
-    cfg.service(add_user).service(get_users); // ("/users", web::post().to(add_user))
+        .service(add_user)
+        .service(get_user_by_id)
+        .service(delete_user)
+        .service(get_users); // ("/users", web::post().to(add_user))
 }
 
 #[get("/users")]
@@ -18,9 +20,11 @@ pub async fn get_users(dbconn: web::Data<Pool>) -> Result<HttpResponse, Error> {
     Ok(web::block(move || db::users::get_all_users(conn))
         .await
         .map(|user| HttpResponse::Ok().json(user))
-        .map_err(|_| HttpResponse::InternalServerError())?)
+        .map_err(|_| ServiceError::DbError("Not possible to get users from database".to_string()))?
+    )
 }
 
+#[get("/users/{id}")]
 pub async fn get_user_by_id(
     db: web::Data<Pool>,
     user_id: web::Path<i32>,
@@ -31,7 +35,7 @@ pub async fn get_user_by_id(
         web::block(move || db::users::db_get_user_by_id(db.into_inner(), user_id))
             .await
             .map(|user| HttpResponse::Ok().json(user))
-            .map_err(|_| HttpResponse::InternalServerError())?,
+            .map_err(|_| ServiceError::DbError(format!("Not possible get user by id: {}", user_id)))?
     )
 }
 
@@ -48,11 +52,12 @@ pub async fn add_user(
         web::block(move || db::users::signup_user(db.into_inner(), &item.into_inner()))
             .await
             .map(|user| HttpResponse::Created().json(user)) // status 201
-            .map_err(|_| HttpResponse::InternalServerError())?,
+            .map_err(|err| ServiceError::DbError(format!("Not possible to add user to database: {:?}", err)))?
     )
 }
 
 // Handler for DELETE /users/{id}
+#[delete("/users/{id}")]
 pub async fn delete_user(
     db: web::Data<Pool>,
     user_id: web::Path<i32>,
@@ -61,7 +66,10 @@ pub async fn delete_user(
     Ok(
         web::block(move || db::users::delete_single_user(db.into_inner(), user_id.into_inner()))
             .await
-            .map(|user| HttpResponse::Ok().json(user))
-            .map_err(|_| HttpResponse::InternalServerError())?,
+            .map(|count| {
+                let text = format!("Users deleted: {}", count);
+                HttpResponse::Ok().json(ResponseBody::new(&text, ""))
+            })
+            .map_err(|err| ServiceError::DbError(format!("Not possible to delete user: {:?}", err)))?
     )
 }
