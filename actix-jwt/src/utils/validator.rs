@@ -28,7 +28,7 @@ pub async fn auth_validator(
     // .ok_or_else(|| Err(AuthenticationError::from(config).into()))?;
 
     // Now it is necessary to validate token form bearer authstring
-    match token::jwt::decode_token(credentials.token()) {
+    match token::UserToken::decode_token(credentials.token()) {
         Ok(token_data) => {
             info!("Decoding token succesfull");
             if token::jwt::verify_token(&token_data, pool.into_inner()).is_ok() {

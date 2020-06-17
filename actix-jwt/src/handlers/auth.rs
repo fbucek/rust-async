@@ -29,7 +29,7 @@ pub async fn signup_user(
         web::block(move || db::users::signup_user(db.into_inner(), &user.into_inner()))
             .await
             .map(|user| HttpResponse::Created().json(user)) // status 201
-            .map_err(|err| ServiceError::DbError(format!("Not possible create user: {:?}", err)))?,
+            .map_err(|err| ServiceError::LoginError(format!("Not possible to login user: {:?}", err)))?,
     )
 }
 
@@ -39,18 +39,27 @@ pub async fn login_user(
     login_req: web::Json<LoginRequest>,
 ) -> Result<HttpResponse, Error> {
     info!("User: {} trying to login", login_req.username);
-    Ok(
-        web::block(move || db::users::login_user(db.into_inner(), &login_req.into_inner()))
-            .await
-            .map(|login_info| {
-                let token_response = common::TokenBodyResponse {
-                    token: token::UserToken::generate_token(login_info),
-                    token_type: "bearer".to_string(),
-                };
-                HttpResponse::Ok().json(token_response)
-            }) // status 200
-            .map_err(|err| ServiceError::LoginError(format!("Not possible to login user: {:?}", err)))?,
-    )
+
+    let result = web::block(move || db::users::login_user(db.into_inner(), &login_req.into_inner()))
+            .await;
+    
+    match result {
+        Ok(login_info) => {
+            match token::UserToken::generate_token(login_info) {
+                Ok(token) => {
+                    let token_response = common::TokenBodyResponse {
+                        token,
+                        token_type: "bearer".to_string(),
+                    };
+                    Ok(HttpResponse::Ok().json(token_response))
+                }
+                Err(err) => Err(ServiceError::LoginError(format!("Not possible to generate token: {:?}", err)))?,
+            }
+        }
+        Err(err) => {
+            Err(ServiceError::LoginError(format!("Not possible to login user: {:?}", err)))?
+        }
+    }
 }
 
 #[post("/logout")]
@@ -76,7 +85,7 @@ async fn logout(pool: web::Data<Pool>, token: &str ) -> anyhow::Result<HttpRespo
 
     // Decode username from token
     // let token = authen_str[6..authen_str.len()].trim();
-    let token_data = token::jwt::decode_token(token)?;
+    let token_data = token::UserToken::decode_token(token)?;
     let username = token::jwt::verify_token(&token_data, pool.clone())?;
 
     Ok(

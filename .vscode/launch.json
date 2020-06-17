@@ -7,22 +7,39 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "AAA 'actix_jwt' test",
+            "name": "XXX Debug integration test 'test_database'",
             "cargo": {
                 "args": [
-                    "cargo test",
-                    "--package=actixjwt",
-                    "--no-fail-fast",
-                    "--",
-                    "--nocapture"
+                    "test",
+                    "--no-run",
+                    "--test=test_database",
+                    "--package=actixjwt"
+                ],
+                "filter": {
+                    "name": "test_database",
+                    "kind": "test"
+                }
+            },
+            "args": ["--nocapture"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'actix_async'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=actix_async"
                 ],
                 "filter": {
                     "name": "actix_async",
-                    "kind": "bin"
+                    "kind": "lib"
                 }
             },
             "args": [],
-            "env": { "RUST_LOG":"actix_jwt=trace" },
             "cwd": "${workspaceFolder}"
         },
         {
@@ -65,15 +82,34 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'asyncserver'",
+            "name": "Debug unit tests in library 'actixcomplex'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=actixcomplex"
+                ],
+                "filter": {
+                    "name": "actixcomplex",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'actixcomplex'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=asyncserver",
-                    "--package=asyncstd"
+                    "--bin=actixcomplex",
+                    "--package=actixcomplex"
                 ],
                 "filter": {
-                    "name": "asyncserver",
+                    "name": "actixcomplex",
                     "kind": "bin"
                 }
             },
@@ -83,14 +119,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'warpsslproxy1'",
+            "name": "Debug unit tests in executable 'actixcomplex'",
             "cargo": {
                 "args": [
-                    "build",
-                    "--bin=warpsslproxy1",
+                    "test",
+                    "--no-run",
+                    "--bin=actixcomplex",
+                    "--package=actixcomplex"
                 ],
                 "filter": {
-                    "name": "warpsslproxy1",
+                    "name": "actixcomplex",
                     "kind": "bin"
                 }
             },
@@ -100,14 +138,184 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'warpsslproxyhyper1'",
+            "name": "Debug executable 'actixfileupload'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=warpsslproxyhyper1",
+                    "--bin=actixfileupload",
+                    "--package=actixfileupload"
                 ],
                 "filter": {
-                    "name": "warpsslproxyhyper1",
+                    "name": "actixfileupload",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'actixfileupload'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=actixfileupload",
+                    "--package=actixfileupload"
+                ],
+                "filter": {
+                    "name": "actixfileupload",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'actixjwt'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=actixjwt"
+                ],
+                "filter": {
+                    "name": "actixjwt",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'actixjwt'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=actixjwt",
+                    "--package=actixjwt"
+                ],
+                "filter": {
+                    "name": "actixjwt",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'actixjwt'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=actixjwt",
+                    "--package=actixjwt"
+                ],
+                "filter": {
+                    "name": "actixjwt",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'test_database'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=test_database",
+                    "--package=actixjwt"
+                ],
+                "filter": {
+                    "name": "test_database",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'test_api_auth'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=test_api_auth",
+                    "--package=actixjwt"
+                ],
+                "filter": {
+                    "name": "test_api_auth",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'test_api_users'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=test_api_users",
+                    "--package=actixjwt"
+                ],
+                "filter": {
+                    "name": "test_api_users",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'actixssl'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=actixssl",
+                    "--package=actixssl"
+                ],
+                "filter": {
+                    "name": "actixssl",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'actixssl'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=actixssl",
+                    "--package=actixssl"
+                ],
+                "filter": {
+                    "name": "actixssl",
                     "kind": "bin"
                 }
             },
@@ -122,9 +330,47 @@
                 "args": [
                     "build",
                     "--bin=actixsslproxy",
+                    "--package=actixsslproxy"
                 ],
                 "filter": {
                     "name": "actixsslproxy",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'actixsslproxy'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=actixsslproxy",
+                    "--package=actixsslproxy"
+                ],
+                "filter": {
+                    "name": "actixsslproxy",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'asyncserver'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=asyncserver",
+                    "--package=asyncstd"
+                ],
+                "filter": {
+                    "name": "asyncserver",
                     "kind": "bin"
                 }
             },
@@ -181,6 +427,302 @@
                 ],
                 "filter": {
                     "name": "asyncclient",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'hyperserver'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=hyperserver",
+                    "--package=hyperserver"
+                ],
+                "filter": {
+                    "name": "hyperserver",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'hyperserver'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=hyperserver",
+                    "--package=hyperserver"
+                ],
+                "filter": {
+                    "name": "hyperserver",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'hyperssl'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=hyperssl",
+                    "--package=hyperssl"
+                ],
+                "filter": {
+                    "name": "hyperssl",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'hyperssl'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=hyperssl",
+                    "--package=hyperssl"
+                ],
+                "filter": {
+                    "name": "hyperssl",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'warp'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=warp",
+                    "--package=warp"
+                ],
+                "filter": {
+                    "name": "warp",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'warp'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=warp",
+                    "--package=warp"
+                ],
+                "filter": {
+                    "name": "warp",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'warpssl'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=warpssl",
+                    "--package=warpssl"
+                ],
+                "filter": {
+                    "name": "warpssl",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'warpssl'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=warpssl",
+                    "--package=warpssl"
+                ],
+                "filter": {
+                    "name": "warpssl",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'warpsslproxyhyper1'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=warpsslproxyhyper1",
+                    "--package=warpsslproxy"
+                ],
+                "filter": {
+                    "name": "warpsslproxyhyper1",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'warpsslproxyhyper1'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=warpsslproxyhyper1",
+                    "--package=warpsslproxy"
+                ],
+                "filter": {
+                    "name": "warpsslproxyhyper1",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'warpsslproxyhyper2'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=warpsslproxyhyper2",
+                    "--package=warpsslproxy"
+                ],
+                "filter": {
+                    "name": "warpsslproxyhyper2",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'warpsslproxyhyper2'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=warpsslproxyhyper2",
+                    "--package=warpsslproxy"
+                ],
+                "filter": {
+                    "name": "warpsslproxyhyper2",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'warpsslproxyreqwest'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=warpsslproxyreqwest",
+                    "--package=warpsslproxy"
+                ],
+                "filter": {
+                    "name": "warpsslproxyreqwest",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'warpsslproxyreqwest'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=warpsslproxyreqwest",
+                    "--package=warpsslproxy"
+                ],
+                "filter": {
+                    "name": "warpsslproxyreqwest",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'parser'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=parser",
+                    "--package=parser"
+                ],
+                "filter": {
+                    "name": "parser",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'parser'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=parser",
+                    "--package=parser"
+                ],
+                "filter": {
+                    "name": "parser",
                     "kind": "bin"
                 }
             },

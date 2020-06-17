@@ -6,6 +6,7 @@ use std::sync::Arc;
 use crate::db::users::LoginInfo;
 use crate::db::users;
 use crate::db::Pool;
+use jsonwebtoken::{DecodingKey, TokenData, Validation};
 
 pub static KEY: [u8; 16] = *include_bytes!("../../secret.key");
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7; // in seconds
@@ -30,7 +31,7 @@ pub struct UserToken {
 }
 
 impl UserToken {
-    pub fn generate_token(login: LoginInfo) -> String {
+    pub fn generate_token(login: LoginInfo) -> anyhow::Result<String> {
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nanosecond -> second
         let payload = UserToken {
             iat: now,
@@ -39,21 +40,13 @@ impl UserToken {
             login_session: login.login_session,
         };
 
-        jsonwebtoken::encode(
+        Ok(jsonwebtoken::encode(
             &Header::default(),
             &payload,
             &EncodingKey::from_secret(&KEY),
-        ).expect("Not possible to encode JWT token")
+        )?)
     }
-}
 
-/// Json Web Token / validation https://jwt.io/
-pub mod jwt {
-    use super::*;
-    use crate::utils::token::{UserToken, KEY};
-    use jsonwebtoken::{DecodingKey, TokenData, Validation};
-
-    /// Decode JWT from 'str' into JWD data  
     pub fn decode_token(token: &str) -> jsonwebtoken::errors::Result<TokenData<UserToken>> {
         jsonwebtoken::decode::<UserToken>(
             token,
@@ -61,6 +54,16 @@ pub mod jwt {
             &Validation::default(),
         )
     }
+}
+
+/// Json Web Token / validation https://jwt.io/
+pub mod jwt {
+    use super::*;
+    use crate::utils::token::{UserToken, KEY};
+    use jsonwebtoken::{TokenData};
+
+    /// Decode JWT from 'str' into JWD data  
+
 
     pub fn verify_token(
         token_data: &TokenData<UserToken>,
