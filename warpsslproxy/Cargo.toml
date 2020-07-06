@@ -30,6 +30,6 @@ tokio = { version = "0.2.11", features = ["rt-threaded"] }
 futures = "0.3.4"
 
 # warp-hyper client
-hyper-rustls = "0.20.0"
+hyper-rustls = "0.21.0"
 # warp-reqwest client
 reqwest = { version = "0.10.2", features = ["stream", "gzip"] }
