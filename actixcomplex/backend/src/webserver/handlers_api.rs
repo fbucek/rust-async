@@ -1,4 +1,3 @@
-use actix_http;
 use actix_web::{get, web, Error as ActixError, HttpResponse};
 
 // Synchronization
