@@ -18,7 +18,7 @@ log = "0.4.8"
 # clap = "2.33.0"
 ctrlc = "3.1.3"
 
-actix-web = { version = "2.0.0", features = ["openssl"] }
+actix-web = { version = "3.0.1", features = ["openssl"] }
 openssl = "0.10.26"
 actix-rt = "1.0.0"
 # tokio = { version = "0.2.9", features = ["full"] }
