@@ -16,7 +16,7 @@ log = "0.4.8"
 
 # Server
 futures = "0.3.4"
-actix-multipart = "0.2.0"
-actix-web = "3.0.1"
+actix-multipart = "0.3"
+actix-web = "3.0"
 actix-rt = "1.0.0"
 async-std = "1.5.0"
