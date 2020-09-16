@@ -21,7 +21,7 @@ async fn index(_req: HttpRequest) -> impl Responder {
 ///   -subj '/CN=localhost' -extensions EXT -config <( \
 ///    printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")`
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let certificate = "ssl-keys/rustasync.crt";
     let private_key = "ssl-keys/rustasync.key";

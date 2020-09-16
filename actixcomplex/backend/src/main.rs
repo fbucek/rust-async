@@ -12,7 +12,7 @@ use actixcomplex::controller;
 use actixcomplex::webserver;
 
 // #[tokio::main]
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::result::Result<(), std::io::Error> {
     std::env::set_var("RUST_LOG", "debug,h2=warn,actixcomplex=trace");
     env_logger::init();
