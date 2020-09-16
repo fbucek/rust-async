@@ -23,7 +23,7 @@ actix-web = { version = "3.0.1", features = ["openssl"] }
 actix-http = "1.0.1"
 actix-rt = "1.0.0"
 actix-files = "0.2.1"
-actix-web-httpauth = "0.4.0"
+actix-web-httpauth = "0.5.0"
 tokio = { version = "0.2.11", features = ["full"] }
 futures = "0.3.4"
 openssl = "0.10.28"
