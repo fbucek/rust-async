@@ -9,7 +9,8 @@ use actix_async::*;
 
 #[get("/{id}/{name}/index.html")]
 async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
-    format!("Hello {}! id:{}\n", info.1, info.0)
+    let (id, name) = info.into_inner();
+    format!("Hello {}! id:{}\n", name, id)
 }
 
 #[get("/api/run")]
@@ -43,7 +44,7 @@ struct Check {
 }
 
 // #[tokio::main]
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::result::Result<(), std::io::Error> {
     std::env::set_var("RUST_LOG", "debug,actix_async=trace");
     env_logger::init();

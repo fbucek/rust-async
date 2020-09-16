@@ -53,20 +53,22 @@ async fn yew() -> Result<actix_http::Response, actix_web::Error> {
 
 #[get("/{id}/{name}/index.html")]
 async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
-    format!("Hello {}! id:{}\n", info.1, info.0)
+    let (id, name) = info.into_inner();
+    format!("Hello {}! id:{}\n", name, id)
 }
 
 #[get("/password/{id}/{name}")]
 async fn password(
     auth: BasicAuth,
-    info: web::Path<(u32, String)>,
+    web::Path((id, name)): web::Path<(u32, String)>,
     // @see https://docs.rs/actix-web/2.0.0/actix_web/trait.Responder.html
     // @see https://github.com/actix/actix-web/blob/6c9f9fff735023005a99bb3d17d3359bb46339c0/src/responder.rs#L106
     // ) -> impl Responder {
 ) -> Result<actix_http::Response, actix_web::Error> {
+
     trace!("First checking credentials");
     match validator::check_credentials(auth) {
-        Ok(_) => Ok(HttpResponse::Ok().body(format!("Hello {}! id:{}\n", info.1, info.0))),
+        Ok(_) => Ok(HttpResponse::Ok().body(format!("Hello {}! id:{}\n", name, id))),
         Err(err) => {
             debug!("unauthorized access");
             // Have to send OK with some data to notify user in browser ( sending error wont help )

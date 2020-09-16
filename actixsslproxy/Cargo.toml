@@ -18,12 +18,12 @@ log = "0.4.8"
 # clap = "2.33.0"
 lazy_static = "1.4.0"
 
-actix-web = { version = "2.0.0", features = ["openssl"] }
-actix-http = "1.0.1"
+actix-web = { version = "3.0.1", features = ["openssl"] }
+actix-http = "2.0"
 actix-rt = "1.0.0"
 openssl = "0.10.28"
 
 # Proxy
-awc = "1.0.1"
+awc = "2.0.0"
 url = "2.1.1"
 
