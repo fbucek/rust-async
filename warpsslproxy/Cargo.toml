@@ -26,7 +26,7 @@ lazy_static = "1.4.0"
 
 warp = { version = "0.2.1", features = ["tls"] }
 hyper = "0.13.2"
-tokio = { version = "0.2.11", features = ["rt-threaded"] }
+tokio = { version = "0.3.0", features = ["rt-threaded"] }
 futures = "0.3.4"
 
 # warp-hyper client
