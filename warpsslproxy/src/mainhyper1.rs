@@ -25,7 +25,6 @@ lazy_static::lazy_static! {
     };
 }
 
-
 #[derive(Debug)]
 struct HyperClientError;
 
@@ -41,9 +40,7 @@ pub async fn handler_proxy(
     // Get host based on endpoint
     let host = match ENDPOINTS.get(&path.as_str()) {
         Some(host) => host,
-        None => {
-            return Err(warp::reject::custom(HyperClientError))
-        }
+        None => return Err(warp::reject::custom(HyperClientError)),
     };
 
     let url = format!("https://{}{}", &host, path.as_str());

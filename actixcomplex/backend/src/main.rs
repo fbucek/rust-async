@@ -33,7 +33,7 @@ async fn main() -> std::result::Result<(), std::io::Error> {
 
     // Gracefull shutdown -> SIGTERM received -> send message terminate
     ctrlc::set_handler(move || loop {
-        if let Some(mut sender) = sender_exit.try_lock() {
+        if let Some(sender) = sender_exit.try_lock() {
             sender
                 .try_send(controller::Message::Terminate)
                 .expect("not possible to send terminate message");

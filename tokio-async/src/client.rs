@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut stream = TcpStream::connect(&address).await?;
 
-    trace!("Keep alive: {:?}", stream.keepalive()?);
+    // trace!("Keep alive: {:?}", stream.keepalive()?);
     trace!("Connecting to server");
     stream.write_all(data.as_bytes()).await.unwrap();
 
