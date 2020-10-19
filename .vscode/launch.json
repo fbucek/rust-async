@@ -7,6 +7,27 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "AAA 'actix_jwt' test",
+            "cargo": {
+                "args": [
+                    "cargo test",
+                    "--package=actixjwt",
+                    "--no-fail-fast",
+                    "--",
+                    "--nocapture"
+                ],
+                "filter": {
+                    "name": "actix_async",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "env": { "RUST_LOG":"actix_jwt=trace" },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug executable 'actix_async'",
             "cargo": {
                 "args": [

@@ -1,0 +1,51 @@
+[package]
+name = "actixjwt"
+version = "0.1.0"
+authors = ["Filip Bucek <fbucek@invloop.cz>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# Common
+log = "0.4"
+env_logger = "0.7"
+dotenv = "0.15"
+anyhow = "1.0"
+derive_more = "0.99"
+
+# Web
+actix-web = "2.0"
+actix-web-httpauth = "0.4"
+actix-service = "1.0"
+alcoholic_jwt = "1.0"
+reqwest = "0.10"
+actix-rt = "1.1"
+actix-http = "1.0"
+jsonwebtoken = "7.1"
+
+# Crypto / Generators 
+rust-argon2 = "0.8"
+uuid = { version = "0.8", features = ["v4"] }
+
+
+chrono = { version = "0.4", features = ["serde"] }
+# derive_more = "0.99"
+
+# Database 
+diesel = { version = "1.4", features = ["sqlite", "uuidv07", "r2d2", "chrono"] }
+diesel_migrations = "1.4"
+r2d2 = "0.8"
+
+# Async
+futures = "0.3"
+
+# Serialization
+serde = "1"
+serde_derive = "1"
+serde_json = "1"
+
+
+[dev-dependencies]
+nafta = "0.1"
+testax = "0.2"
