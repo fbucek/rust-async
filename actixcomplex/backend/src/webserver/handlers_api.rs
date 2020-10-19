@@ -7,12 +7,14 @@ use std::sync::Arc;
 use crate::controller;
 
 pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
-    cfg.service(api_get_json).service(api_run).service(increment).service(decrement);
+    cfg.service(api_get_json)
+        .service(api_run)
+        .service(increment)
+        .service(decrement);
 }
 
 #[get("/api/get_json")]
-async fn api_get_json(
-) -> Result<HttpResponse, ActixError> {
+async fn api_get_json() -> Result<HttpResponse, ActixError> {
     let data = r#"
         {
             "first_name": "John",
@@ -22,13 +24,12 @@ async fn api_get_json(
     Ok(HttpResponse::Ok().body(data))
 }
 
-
 #[get("/api/run")]
 async fn api_run(
     sender: web::Data<Arc<Mutex<tokio::sync::mpsc::Sender<controller::Message>>>>,
 ) -> Result<HttpResponse, ActixError> {
     // trace!("{:?}", sender);
-    let mut sender = sender.lock().await;
+    let sender = sender.lock().await;
     sender
         .send(controller::Message::RunCheck)
         .await

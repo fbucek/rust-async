@@ -16,10 +16,10 @@ path = "src/client.rs"
 
 [dependencies]
 # Loggings
-env_logger = "0.7.1"
-log = "0.4.8"
+env_logger = "0.8"
+log = "0.4"
 # Command line application
-clap = "2.33.0"
+clap = "2.33"
 
 # TCP networking
-async-std = "1.4.0"
+async-std = "1.6"

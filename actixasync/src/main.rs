@@ -18,7 +18,7 @@ async fn api_run(
     sender: web::Data<Arc<Mutex<tokio::sync::mpsc::Sender<Message>>>>,
 ) -> Result<HttpResponse, ActixError> {
     // trace!("{:?}", sender);
-    let mut sender = sender.lock().unwrap();
+    let sender = sender.lock().unwrap();
     sender.send(Message::RunCheck).await.unwrap_or_else(|err| {
         error!(
             "Not possible to send message -> RunCheck - error: {:?}",
@@ -60,14 +60,14 @@ async fn main() -> std::result::Result<(), std::io::Error> {
 
     // Gracefull shutdown -> SIGTERM received -> send message terminate
     ctrlc::set_handler(move || {
-        let mut sender = sender_exit.lock().expect("not possible to lock");
+        let sender = sender_exit.lock().expect("not possible to lock");
         for _ in 0..4 {
             info!("sending terminate mesage");
             sender
                 .try_send(Message::Terminate)
                 .expect("not possible to send terminate message");
         }
-        let mut sender = sender_exit2.lock().expect("not possible to lock");
+        let sender = sender_exit2.lock().expect("not possible to lock");
         for _ in 0..4 {
             info!("sending terminate mesage");
             sender
@@ -79,10 +79,9 @@ async fn main() -> std::result::Result<(), std::io::Error> {
 
     let builder = std::thread::Builder::new().name("second thread".into()); // into() -> to_string()
     let handler = builder.spawn(move || {
-        let mut runtime = tokio::runtime::Builder::new() //Runtime::new().unwrap();
-            .threaded_scheduler()
+        let runtime = tokio::runtime::Builder::new_multi_thread() //Runtime::new().unwrap();
+            .worker_threads(4)
             .enable_all()
-            .core_threads(4)
             .build()
             .unwrap();
         trace!("Starging block_on");

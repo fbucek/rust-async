@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = matches.value_of("port").unwrap_or("8080");
     let address = format!("{}:{}", ip, port);
 
-    let mut listener = TcpListener::bind(&address).await?;
+    let listener = TcpListener::bind(&address).await?;
 
     match listener.accept().await {
         Ok((_socket, addr)) => println!("new client: {:?}", addr),

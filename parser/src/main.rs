@@ -17,10 +17,7 @@ error_chain! {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let body: String = reqwest::get("https://enter-address")
-        .await?
-        .text()
-        .await?;
+    let body: String = reqwest::get("https://enter-address").await?.text().await?;
 
     // Get DOM from returned BODY
     let document = Document::from(body.as_str());

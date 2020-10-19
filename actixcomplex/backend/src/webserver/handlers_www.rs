@@ -65,7 +65,6 @@ async fn password(
     // @see https://github.com/actix/actix-web/blob/6c9f9fff735023005a99bb3d17d3359bb46339c0/src/responder.rs#L106
     // ) -> impl Responder {
 ) -> Result<actix_http::Response, actix_web::Error> {
-
     trace!("First checking credentials");
     match validator::check_credentials(auth) {
         Ok(_) => Ok(HttpResponse::Ok().body(format!("Hello {}! id:{}\n", name, id))),
