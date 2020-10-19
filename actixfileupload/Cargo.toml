@@ -11,7 +11,7 @@ readme = "README.md"
 
 [dependencies]
 # Loggings
-env_logger = "0.7.1"
+env_logger = "0.8.1"
 log = "0.4.8"
 
 # Server
