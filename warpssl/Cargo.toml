@@ -20,6 +20,6 @@ ctrlc = "3.1"
 
 
 warp = { version = "0.2", features = ["tls"] }
-tokio = { version = "0.3", features = ["full"] }
+tokio = { version = "1.0", features = ["full"] }
 
 pretty_env_logger = "0.4.0"

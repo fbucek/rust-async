@@ -28,4 +28,4 @@ clap = "2.33"
 ctrlc = "3.1"
 
 # TCP networking
-tokio = { version = "0.3.0", features = ["rt", "macros", "process"] }
+tokio = { version = "1.0.0", features = ["rt", "macros", "process"] }
