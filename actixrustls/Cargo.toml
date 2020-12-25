@@ -1,5 +1,5 @@
 [package]
-name = "actixssl"
+name = "actixrustls"
 version = "0.1.0"
 authors = ["Filip Bucek <fbucek@invloop.cz>"]
 edition = "2018"
@@ -18,8 +18,8 @@ log = "0.4"
 # clap = "2.33.0"
 ctrlc = "3.1"
 
-actix-web = { version = "3.3", features = ["openssl"] }
-openssl = "0.10"
+actix-web = { version = "3.3", features = ["rustls"] }
+rustls = "0.19"
 actix-rt = "1.1"
 # tokio = { version = "0.2.9", features = ["full"] }
 # futures = "0.3.1"

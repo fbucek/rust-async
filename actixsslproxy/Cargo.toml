@@ -12,18 +12,18 @@ edition = "2018"
 
 [dependencies]
 # Loggings
-env_logger = "0.8.1"
-log = "0.4.8"
+env_logger = "0.8"
+log = "0.4"
 # Command line application
 # clap = "2.33.0"
 lazy_static = "1.4.0"
 
-actix-web = { version = "3.0.1", features = ["openssl"] }
-actix-http = "2.0"
-actix-rt = "1.0.0"
-openssl = "0.10.28"
+actix-web = { version = "3.3", features = ["openssl"] }
+actix-http = "2.2"
+actix-rt = "1.1"
+openssl = "0.10"
 
 # Proxy
-awc = "2.0.0"
-url = "2.1.1"
+awc = "2.0"
+url = "2.2"
 

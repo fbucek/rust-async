@@ -29,7 +29,7 @@ async fn api_run(
     sender: web::Data<Arc<Mutex<tokio::sync::mpsc::Sender<controller::Message>>>>,
 ) -> Result<HttpResponse, ActixError> {
     // trace!("{:?}", sender);
-    let sender = sender.lock().await;
+    let mut sender = sender.lock().await;
     sender
         .send(controller::Message::RunCheck)
         .await
