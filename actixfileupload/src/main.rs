@@ -14,10 +14,10 @@ async fn upload_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
         let mut field = item?;
         let content_type = field
             .content_disposition()
-            .ok_or_else(|| actix_web::error::ParseError::Incomplete)?;
+            .ok_or(actix_web::error::ParseError::Incomplete)?;
         let filename = content_type
             .get_filename()
-            .ok_or_else(|| actix_web::error::ParseError::Incomplete)?;
+            .ok_or(actix_web::error::ParseError::Incomplete)?;
         let filepath = format!("./tmp/{}", filename);
         let mut f = async_std::fs::File::create(filepath).await?;
 
