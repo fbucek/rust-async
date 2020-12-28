@@ -20,6 +20,6 @@ ctrlc = "3.1"
 
 
 hyper = "0.14"
-tokio = { version = "0.3.0", features = ["full"] }
+tokio = { version = "1.0", features = ["full"] }
 
 pretty_env_logger = "0.4"
