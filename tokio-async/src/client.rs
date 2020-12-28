@@ -1,5 +1,6 @@
+use tokio::io::AsyncReadExt;
+use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
-use tokio::prelude::*;
 
 #[macro_use]
 extern crate log;
