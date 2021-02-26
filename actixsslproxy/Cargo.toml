@@ -20,7 +20,7 @@ lazy_static = "1.4.0"
 
 actix-web = { version = "3.0.1", features = ["openssl"] }
 actix-http = "2.0"
-actix-rt = "1.0.0"
+actix-rt = "2.1.0"
 openssl = "0.10.28"
 
 # Proxy
