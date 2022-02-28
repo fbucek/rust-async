@@ -18,7 +18,7 @@ log = "0.4.8"
 # clap = "2.33.0"
 lazy_static = "1.4.0"
 
-actix-web = { version = "3.0.1", features = ["openssl"] }
+actix-web = { version = "4.0.1", features = ["openssl"] }
 actix-http = "2.0"
 actix-rt = "1.0.0"
 openssl = "0.10.28"

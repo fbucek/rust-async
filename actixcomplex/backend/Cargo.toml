@@ -19,7 +19,7 @@ log = "0.4"
 ctrlc = "3.1"
 
 # Server 
-actix-web = { version = "3.1", features = ["openssl"] }
+actix-web = { version = "4.0", features = ["openssl"] }
 actix-http = "2.0"
 actix-files = "0.5"
 actix-web-httpauth = "0.5"
