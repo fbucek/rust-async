@@ -11,12 +11,12 @@ readme = "README.md"
 
 [dependencies]
 # Loggings
-env_logger = "0.8"
+env_logger = "0.9"
 log = "0.4"
 
 # Server
 futures = "0.3"
-actix-multipart = "0.3"
+actix-multipart = "0.4"
 actix-web = "4.0"
-actix-rt = "1.1"
+futures-util = "0.3"
 async-std = "1.6"

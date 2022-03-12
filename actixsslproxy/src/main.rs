@@ -1,5 +1,5 @@
 // <ssl>
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder, error};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 use lazy_static::lazy_static;
@@ -28,10 +28,10 @@ lazy_static! {
 /// @see https://github.com/actix/examples/blob/master/http-proxy/src/main.rs
 pub async fn forward(
     req: HttpRequest,
-    body: web::Bytes, // will be send to client
+    payload: web::Payload, // will be send to client
     // url: web::Data<Url>,
     client: web::Data<awc::Client>,
-) -> Result<actix_http::Response, actix_web::Error> {
+) -> Result<HttpResponse, actix_web::Error> {
     // Get host from endpoints hash
     let req_path = req.uri().path();
     let req_query = req.uri().query();
@@ -60,15 +60,15 @@ pub async fn forward(
         .no_decompress();
 
     // Change hosts
-    let forwarded_req = forwarded_req.set_header("Connection", "keep-alive");
-    let forwarded_req = forwarded_req.set_header("host", *host);
+    let forwarded_req = forwarded_req.insert_header(("Connection", "keep-alive"));
+    let forwarded_req = forwarded_req.insert_header(("host", *host));
 
     trace!("req: {:?}", forwarded_req);
 
-    let mut res = forwarded_req
-        .send_body(body)
+    let res = forwarded_req
+        .send_stream(payload)
         .await
-        .map_err(actix_web::Error::from)?;
+        .map_err(error::ErrorInternalServerError)?;
 
     let mut client_resp = HttpResponse::build(res.status());
 
@@ -76,11 +76,11 @@ pub async fn forward(
     // Remove `Connection` as per
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Connection#Directives
     for (header_name, header_value) in res.headers().iter().filter(|(h, _)| *h != "connection") {
-        client_resp.header(header_name.clone(), header_value.clone());
+        client_resp.insert_header((header_name.clone(), header_value.clone()));
     }
 
     // Return client response with body
-    Ok(client_resp.body(res.body().await?))
+    Ok(client_resp.streaming(res))
 }
 
 async fn index(_req: HttpRequest) -> impl Responder {
@@ -129,7 +129,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(index))
-            .data(awc::Client::new())
+            .app_data(awc::Client::new())
             .default_service(web::route().to(forward))
     })
     .bind_openssl("localhost:8090", builder)?
