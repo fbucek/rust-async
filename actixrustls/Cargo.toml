@@ -1,5 +1,5 @@
 [package]
-name = "actixsslproxy"
+name = "actixrustls"
 version = "0.1.0"
 authors = ["Filip Bucek <fbucek@invloop.cz>"]
 edition = "2018"
@@ -12,18 +12,12 @@ edition = "2018"
 
 [dependencies]
 # Loggings
-env_logger = "0.8"
+env_logger = "0.9"
 log = "0.4"
 # Command line application
 # clap = "2.33.0"
-lazy_static = "1.4.0"
+ctrlc = "3.1"
 
-actix-web = { version = "4.0.1", features = ["openssl"] }
-actix-http = "2.0"
-actix-rt = "1.0.0"
-openssl = "0.10.28"
-
-# Proxy
-awc = "2.0"
-url = "2.2"
-
+actix-web = { version = "4", features = ["rustls"] }
+rustls = "0.20"
+rustls-pemfile = "0.2.1"
