@@ -58,7 +58,7 @@ async fn main() -> std::result::Result<(), std::io::Error> {
             .wrap(middleware::Compress::default())
             .configure(webserver::handlers_api::config)
             .configure(webserver::handlers_www::config)
-            .data(Arc::clone(&sender))
+            .app_data(Arc::clone(&sender))
     })
     .bind_openssl("127.0.0.1:8088", builder)?
     // .bind("127.0.0.1:8080")

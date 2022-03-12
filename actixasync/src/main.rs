@@ -37,11 +37,11 @@ async fn index() -> &'static str {
     "Hello World!"
 }
 
-#[derive(Default, Debug)]
-struct Check {
-    ip: String,
-    port: String,
-}
+// #[derive(Default, Debug)]
+// struct Check {
+//     ip: String,
+//     port: String,
+// }
 
 // #[tokio::main]
 #[actix_web::main]
@@ -112,7 +112,7 @@ async fn main() -> std::result::Result<(), std::io::Error> {
             .service(index_id_name)
             .service(index)
             .service(api_run)
-            .data(Arc::clone(&sender))
+            .app_data(Arc::clone(&sender))
     })
     .bind("127.0.0.1:8080")
     .expect("Not possible to bind to address")

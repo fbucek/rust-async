@@ -61,8 +61,8 @@ async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
 async fn password(
     auth: BasicAuth,
     path: web::Path<(u32, String)>,
-    // @see https://docs.rs/actix-web/2.0.0/actix_web/trait.Responder.html
-    // @see https://github.com/actix/actix-web/blob/6c9f9fff735023005a99bb3d17d3359bb46339c0/src/responder.rs#L106
+    // @see <https://docs.rs/actix-web/2.0.0/actix_web/trait.Responder.html>
+    // @see <https://github.com/actix/actix-web/blob/6c9f9fff735023005a99bb3d17d3359bb46339c0/src/responder.rs#L106>
     // ) -> impl Responder {
 ) -> Result<HttpResponse, actix_web::Error> {
     trace!("First checking credentials");
@@ -102,7 +102,7 @@ mod tests {
 
         use actix_web::http::StatusCode;
 
-        let app = test::init_service( actix_web::App::new().configure(config)).await;
+        let app = test::init_service(actix_web::App::new().configure(config)).await;
 
         let vec = vec![
             ("/", StatusCode::OK, HTML_LINKS),
@@ -126,7 +126,7 @@ mod tests {
             let status = test.1;
             let expected_body = test.2;
 
-            let req = test::TestRequest::get().uri(&uri).to_request();
+            let req = test::TestRequest::get().uri(uri).to_request();
             let response = test::call_service(&app, req).await;
             assert_eq!(response.status(), status);
             if !expected_body.is_empty() {

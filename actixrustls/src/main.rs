@@ -49,7 +49,7 @@ async fn main() -> std::io::Result<()> {
 
     if keys.is_empty() {
         eprintln!("Could not locate PKCS 8 private keys.");
-        std::process::exit(1);   
+        std::process::exit(1);
     }
 
     let config = config.with_single_cert(cert_chain, keys.remove(0)).unwrap();

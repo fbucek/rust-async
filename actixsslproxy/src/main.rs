@@ -1,5 +1,5 @@
 // <ssl>
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder, error};
+use actix_web::{error, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 use lazy_static::lazy_static;

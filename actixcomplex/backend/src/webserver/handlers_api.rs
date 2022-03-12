@@ -47,18 +47,14 @@ async fn api_run(
 }
 
 #[get("/api/increment")]
-async fn increment(
-    counter: web::Data<Arc<Mutex<i32>>>,
-) -> Result<HttpResponse, actix_web::Error> {
+async fn increment(counter: web::Data<Arc<Mutex<i32>>>) -> Result<HttpResponse, actix_web::Error> {
     let mut counter = counter.lock().await;
     *counter += 1;
     Ok(HttpResponse::Ok().body(format!("counter: {}", *counter)))
 }
 
 #[get("/api/decrement")]
-async fn decrement(
-    counter: web::Data<Arc<Mutex<i32>>>,
-) -> Result<HttpResponse, actix_web::Error> {
+async fn decrement(counter: web::Data<Arc<Mutex<i32>>>) -> Result<HttpResponse, actix_web::Error> {
     let mut counter = counter.lock().await;
     *counter -= 1;
     Ok(HttpResponse::Ok().body(format!("counter: {}", *counter)))

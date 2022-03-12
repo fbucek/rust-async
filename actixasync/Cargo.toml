@@ -19,6 +19,5 @@ log = "0.4"
 ctrlc = "3.1"
 
 actix-web = "4.0"
-actix-rt = "1.1"
 tokio = { version = "1.0.1", features = ["full"] }
 futures = "0.3"
