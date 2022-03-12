@@ -16,7 +16,7 @@ async fn index(_req: HttpRequest) -> impl Responder {
 ///
 /// # Add certificat to be trusted
 ///
-/// https://apple.stackexchange.com/a/80625
+/// <https://apple.stackexchange.com/a/80625>
 /// `sudo security delete-certificate -c localhost`
 /// `sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain localhost.crt`
 ///
