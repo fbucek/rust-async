@@ -25,7 +25,7 @@ lazy_static! {
     };
 }
 
-/// @see https://github.com/actix/examples/blob/master/http-proxy/src/main.rs
+/// @see <https://github.com/actix/examples/blob/master/http-proxy/src/main.rs>
 pub async fn forward(
     req: HttpRequest,
     payload: web::Payload, // will be send to client

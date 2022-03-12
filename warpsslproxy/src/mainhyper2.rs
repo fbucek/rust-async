@@ -6,7 +6,7 @@ mod filters {
     use super::handlers;
     use warp::Filter;
 
-    /// @see https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177
+    /// @see <https://github.com/seanmonstar/warp/issues/448#issuecomment-587174177>
     pub fn proxy(
         client: hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>>,
     ) -> impl warp::Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

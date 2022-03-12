@@ -26,7 +26,7 @@ impl From<reqwest::Error> for MyError {
 #[tokio::main]
 async fn main() {
     std::env::set_var("RUST_LOG", "warpsslproxyreqwest=debug");
-    // @see https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html
+    // @see <https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html>
     env_logger::Builder::from_default_env()
         .format(|buf, record| {
             writeln!(
