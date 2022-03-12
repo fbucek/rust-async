@@ -40,12 +40,12 @@ pub fn config(cfg: &mut actix_web::web::ServiceConfig) {
 }
 
 #[get("/")]
-async fn index() -> Result<actix_http::Response, actix_web::Error> {
+async fn index() -> Result<HttpResponse, actix_web::Error> {
     Ok(HttpResponse::Ok().body(HTML_LINKS))
 }
 
 #[get("/yew")]
-async fn yew() -> Result<actix_http::Response, actix_web::Error> {
+async fn yew() -> Result<HttpResponse, actix_web::Error> {
     Ok(HttpResponse::build(http::StatusCode::OK)
         .content_type("text/html; charset=utf-8")
         .body(include_str!("../../static/frontendyew.html")))
@@ -60,12 +60,13 @@ async fn index_id_name(info: web::Path<(u32, String)>) -> impl Responder {
 #[get("/password/{id}/{name}")]
 async fn password(
     auth: BasicAuth,
-    web::Path((id, name)): web::Path<(u32, String)>,
+    path: web::Path<(u32, String)>,
     // @see https://docs.rs/actix-web/2.0.0/actix_web/trait.Responder.html
     // @see https://github.com/actix/actix-web/blob/6c9f9fff735023005a99bb3d17d3359bb46339c0/src/responder.rs#L106
     // ) -> impl Responder {
-) -> Result<actix_http::Response, actix_web::Error> {
+) -> Result<HttpResponse, actix_web::Error> {
     trace!("First checking credentials");
+    let (id, name) = path.into_inner();
     match validator::check_credentials(auth) {
         Ok(_) => Ok(HttpResponse::Ok().body(format!("Hello {}! id:{}\n", name, id))),
         Err(err) => {
@@ -91,19 +92,21 @@ mod tests {
 
     //use futures::*;
     use super::*;
+    use actix_http::body::MessageBody;
+    use actix_web::test;
 
     ///
-    #[actix_rt::test]
+    #[actix_web::test]
     async fn test_index_id_name() {
         std::env::set_var("RUST_LOG", "error,trace");
 
         use actix_web::http::StatusCode;
 
-        let srv = actix_web::test::start(|| actix_web::App::new().configure(config));
+        let app = test::init_service( actix_web::App::new().configure(config)).await;
 
         let vec = vec![
             ("/", StatusCode::OK, HTML_LINKS),
-            ("", StatusCode::OK, HTML_LINKS),
+            // ("", StatusCode::OK, HTML_LINKS),
             ("/notfound", StatusCode::NOT_FOUND, ""),
             (
                 "/34/filip/index.html",
@@ -121,13 +124,16 @@ mod tests {
         for test in vec {
             let uri = test.0;
             let status = test.1;
-            let body = test.2;
+            let expected_body = test.2;
 
-            let mut response = srv.get(&uri).send().await.unwrap();
+            let req = test::TestRequest::get().uri(&uri).to_request();
+            let response = test::call_service(&app, req).await;
             assert_eq!(response.status(), status);
-            if !body.is_empty() {
-                let bytes = response.body().await.unwrap();
-                assert_eq!(body, bytes);
+            if !expected_body.is_empty() {
+                let body = response.into_body();
+                let body = body.try_into_bytes().unwrap();
+                // let bytes = response.body().await.unwrap();
+                assert_eq!(body, expected_body);
             }
         }
     }

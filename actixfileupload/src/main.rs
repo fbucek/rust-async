@@ -1,7 +1,7 @@
 use actix_multipart::Multipart;
-use actix_web::{get, middleware, post, App, Error, HttpResponse, HttpServer};
+use actix_web::{get, middleware, post, App, Error, HttpResponse, Responder, HttpServer};
 use async_std::prelude::*;
-use futures::StreamExt;
+use futures_util::TryStreamExt as _;
 
 #[macro_use]
 extern crate log;
@@ -10,12 +10,10 @@ extern crate log;
 async fn upload_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
     trace!("Saving file");
     // iterate over multipart stream
-    while let Some(item) = payload.next().await {
-        let mut field = item?;
-        let content_type = field
-            .content_disposition()
-            .ok_or(actix_web::error::ParseError::Incomplete)?;
-        let filename = content_type
+    while let Some(mut field) = payload.try_next().await? {
+        // let mut field = item?;
+        let content_disposition = field.content_disposition();
+        let filename = content_disposition
             .get_filename()
             .ok_or(actix_web::error::ParseError::Incomplete)?;
         let filepath = format!("./tmp/{}", filename);
@@ -32,7 +30,7 @@ async fn upload_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
 }
 
 #[get("/")]
-fn index() -> HttpResponse {
+async fn index() -> impl Responder {
     let html = r#"<html>
     <head><title>Upload Test</title></head>
     <body>
