@@ -96,7 +96,7 @@ mod tests {
     use actix_web::test;
 
     ///
-    #[actix_rt::test]
+    #[actix_web::test]
     async fn test_index_id_name() {
         std::env::set_var("RUST_LOG", "error,trace");
 
@@ -106,7 +106,7 @@ mod tests {
 
         let vec = vec![
             ("/", StatusCode::OK, HTML_LINKS),
-            ("", StatusCode::OK, HTML_LINKS),
+            // ("", StatusCode::OK, HTML_LINKS),
             ("/notfound", StatusCode::NOT_FOUND, ""),
             (
                 "/34/filip/index.html",
