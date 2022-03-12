@@ -1,6 +1,10 @@
-// <ssl>
+use std::fs::File;
+use std::io::BufReader;
+
 use actix_web::{web, App, HttpRequest, HttpServer, Responder};
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+
+use rustls::{Certificate, PrivateKey, ServerConfig};
+use rustls_pemfile::{certs, pkcs8_private_keys};
 
 async fn index(_req: HttpRequest) -> impl Responder {
     "Welcome!"
@@ -26,18 +30,34 @@ async fn main() -> std::io::Result<()> {
     let certificate = "ssl-keys/rustasync.crt";
     let private_key = "ssl-keys/rustasync.key";
 
-    let cur_dir = std::env::current_dir().expect("not possible to get current dir");
-    println!("cur_dir: {}", &cur_dir.to_str().unwrap());
-    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-    builder
-        .set_private_key_file(&private_key, SslFiletype::PEM)
-        .unwrap();
-    builder.set_certificate_chain_file(&certificate).unwrap();
+    // load ssl keys
+    let config = ServerConfig::builder()
+        .with_safe_defaults()
+        .with_no_client_auth();
+    let cert_file = &mut BufReader::new(File::open(certificate).unwrap());
+    let key_file = &mut BufReader::new(File::open(private_key).unwrap());
+    let cert_chain = certs(cert_file)
+        .unwrap()
+        .into_iter()
+        .map(Certificate)
+        .collect();
+    let mut keys: Vec<PrivateKey> = pkcs8_private_keys(key_file)
+        .unwrap()
+        .into_iter()
+        .map(PrivateKey)
+        .collect();
+
+    if keys.is_empty() {
+        eprintln!("Could not locate PKCS 8 private keys.");
+        std::process::exit(1);   
+    }
+
+    let config = config.with_single_cert(cert_chain, keys.remove(0)).unwrap();
 
     println!("running on: https://localhost:8088");
 
     HttpServer::new(|| App::new().route("/", web::get().to(index)))
-        .bind_openssl("127.0.0.1:8088", builder)?
+        .bind_rustls("127.0.0.1:8088", config)?
         .run()
         .await
 }
