@@ -1,6 +1,7 @@
 use actix_web::{get, web, App, Error as ActixError, HttpResponse, HttpServer, Responder};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::*;
+use tokio::sync::Mutex;
 
 #[macro_use]
 extern crate log;
@@ -18,7 +19,7 @@ async fn api_run(
     sender: web::Data<Arc<Mutex<tokio::sync::mpsc::Sender<Message>>>>,
 ) -> Result<HttpResponse, ActixError> {
     // trace!("{:?}", sender);
-    let sender = sender.lock().unwrap();
+    let sender = sender.lock().await;
     sender.send(Message::RunCheck).await.unwrap_or_else(|err| {
         error!(
             "Not possible to send message -> RunCheck - error: {:?}",
@@ -60,14 +61,14 @@ async fn main() -> std::result::Result<(), std::io::Error> {
 
     // Gracefull shutdown -> SIGTERM received -> send message terminate
     ctrlc::set_handler(move || {
-        let sender = sender_exit.lock().expect("not possible to lock");
+        let sender = sender_exit.try_lock().expect("not possible to lock");
         for _ in 0..4 {
             info!("sending terminate mesage");
             sender
                 .try_send(Message::Terminate)
                 .expect("not possible to send terminate message");
         }
-        let sender = sender_exit2.lock().expect("not possible to lock");
+        let sender = sender_exit2.try_lock().expect("not possible to lock");
         for _ in 0..4 {
             info!("sending terminate mesage");
             sender
