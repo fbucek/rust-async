@@ -12,7 +12,7 @@ edition = "2018"
 
 [dependencies]
 # Loggings
-env_logger = "0.8"
+env_logger = "0.9"
 log = "0.4"
 # Command line application
 # clap = "2.33.0"
