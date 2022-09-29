@@ -24,7 +24,7 @@ path = "src/solution2.rs"
 env_logger = "0.8"
 log = "0.4"
 # Command line application
-clap = "2.33"
+clap = "4.0"
 ctrlc = "3.1"
 
 # TCP networking
