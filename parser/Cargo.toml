@@ -6,6 +6,6 @@ edition = "2018"
 
 [dependencies]
 error-chain = "0.12"
-select = "0.5"
+select = "0.6"
 reqwest = "0.10"
 tokio = "1.0"
